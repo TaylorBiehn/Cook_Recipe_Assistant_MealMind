@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Cooking Experience Onboarding</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "on-tertiary-fixed-variant": "#743500",
+                    "surface-variant": "#e6e2dd",
+                    "secondary-fixed-dim": "#bdcca7",
+                    "on-primary-container": "#ffcea7",
+                    "surface-container-lowest": "#ffffff",
+                    "primary-fixed": "#ffdcc1",
+                    "tertiary": "#733500",
+                    "inverse-on-surface": "#f4f0eb",
+                    "background": "#fdf9f4",
+                    "surface-bright": "#fdf9f4",
+                    "surface-container": "#f1ede8",
+                    "primary": "#6c3a00",
+                    "on-secondary-fixed-variant": "#3e4b2f",
+                    "surface-container-high": "#ebe8e3",
+                    "on-primary": "#ffffff",
+                    "on-error-container": "#93000a",
+                    "secondary": "#556345",
+                    "on-error": "#ffffff",
+                    "outline-variant": "#d8c3b3",
+                    "error-container": "#ffdad6",
+                    "on-surface": "#1c1c19",
+                    "on-primary-fixed-variant": "#6c3a00",
+                    "inverse-primary": "#ffb779",
+                    "surface-tint": "#8e4f04",
+                    "tertiary-fixed-dim": "#ffb689",
+                    "secondary-fixed": "#d9e8c2",
+                    "error": "#ba1a1a",
+                    "surface-dim": "#ddd9d5",
+                    "inverse-surface": "#31302d",
+                    "outline": "#857466",
+                    "tertiary-fixed": "#ffdbc8",
+                    "surface": "#fdf9f4",
+                    "primary-fixed-dim": "#ffb779",
+                    "on-tertiary": "#ffffff",
+                    "on-secondary": "#ffffff",
+                    "on-secondary-container": "#5a6749",
+                    "on-secondary-fixed": "#141f07",
+                    "tertiary-container": "#974700",
+                    "surface-container-low": "#f7f3ee",
+                    "surface-container-highest": "#e6e2dd",
+                    "secondary-container": "#d6e5bf",
+                    "primary-container": "#8d4e03",
+                    "on-tertiary-fixed": "#311300",
+                    "on-tertiary-container": "#ffcdb0",
+                    "on-surface-variant": "#534438",
+                    "on-background": "#1c1c19",
+                    "on-primary-fixed": "#2e1500"
+            },
+            "borderRadius": {
+                    "DEFAULT": "1rem",
+                    "lg": "2rem",
+                    "xl": "3rem",
+                    "full": "9999px"
+            },
+            "fontFamily": {
+                    "headline": ["Plus Jakarta Sans"],
+                    "body": ["Plus Jakarta Sans"],
+                    "label": ["Plus Jakarta Sans"]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        body { font-family: 'Plus Jakarta Sans', sans-serif; }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-surface antialiased">
+<!-- TopAppBar -->
+<header class="fixed top-0 w-full z-50 bg-[#fdf9f4]/80 dark:bg-[#1c1c19]/80 backdrop-blur-md flex items-center justify-between px-6 py-4">
+<div class="flex items-center justify-center w-10 h-10 hover:opacity-80 transition-opacity cursor-pointer active:scale-95 transition-transform">
+<span class="material-symbols-outlined text-[#6c3a00] dark:text-[#ffdcc1]">arrow_back</span>
+</div>
+<h1 class="text-[#6c3a00] dark:text-[#ffdcc1] font-['Plus_Jakarta_Sans'] font-bold tracking-tight text-lg">Cooking Level</h1>
+<div class="w-10"></div> <!-- Spacer for centering -->
+</header>
+<main class="pt-24 pb-32 px-6 max-w-md mx-auto">
+<!-- Header Section -->
+<section class="mb-10">
+<span class="text-secondary font-semibold tracking-wider text-xs uppercase mb-2 block">Step 2 of 4</span>
+<h2 class="text-4xl font-extrabold text-on-background tracking-tight leading-tight">
+                How experienced are you with cooking?
+            </h2>
+</section>
+<!-- Options List -->
+<div class="space-y-4 mb-12">
+<!-- Beginner Card -->
+<button class="w-full text-left p-6 rounded-xl bg-surface-container border-2 border-primary-container flex items-center justify-between transition-transform active:scale-[0.98]">
+<div>
+<h3 class="text-xl font-bold text-on-surface mb-1">Beginner</h3>
+<p class="text-on-surface-variant text-sm">I need simple, step-by-step guidance</p>
+</div>
+<div class="w-6 h-6 rounded-full border-2 border-primary-container flex items-center justify-center">
+<div class="w-3 h-3 bg-primary-container rounded-full"></div>
+</div>
+</button>
+<!-- Intermediate Card -->
+<button class="w-full text-left p-6 rounded-xl bg-surface-container-low hover:bg-surface-container transition-colors flex items-center justify-between active:scale-[0.98]">
+<div>
+<h3 class="text-xl font-bold text-on-surface mb-1">Intermediate</h3>
+<p class="text-on-surface-variant text-sm">I know my way around the kitchen</p>
+</div>
+<div class="w-6 h-6 rounded-full border-2 border-outline-variant"></div>
+</button>
+<!-- Advanced Card -->
+<button class="w-full text-left p-6 rounded-xl bg-surface-container-low hover:bg-surface-container transition-colors flex items-center justify-between active:scale-[0.98]">
+<div>
+<h3 class="text-xl font-bold text-on-surface mb-1">Advanced</h3>
+<p class="text-on-surface-variant text-sm">I can improvise and master techniques</p>
+</div>
+<div class="w-6 h-6 rounded-full border-2 border-outline-variant"></div>
+</button>
+</div>
+<!-- Chef's Note Section -->
+<section class="relative bg-secondary-container rounded-lg p-8 overflow-hidden">
+<div class="relative z-10">
+<div class="flex items-center gap-3 mb-4">
+<div class="w-12 h-12 rounded-full overflow-hidden bg-surface">
+<img alt="Professional chef portrait" class="w-full h-full object-cover" data-alt="close-up portrait of a friendly professional chef with a warm smile wearing white culinary uniform in a sunlit kitchen" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCicmgJuvphQrpqGVcIZfNgb-BaBMbsYnpmqIneKHRvOkSl-1UjJc1I_AMhfI0kKXTzVWE1KopksfDqcAw6q2VcAu8sZcRlz7qzX7zK8wcTAEG-Z2kshG5UjB5wTg_8SHrSvvSRpbr0NOcRJFDBV89EgyVO2MO0hEerV011MLanys3SZv0zrBAFSMiq8f4G23DokMsraus8Mg2QUiTFXsYCzPryU7eqabwSFw9fHkJExlUGZlLH2p2clkyDCId6vHiQXM573JvBS0jE"/>
+</div>
+<div>
+<p class="font-bold text-on-secondary-container text-sm">Chef Julian</p>
+<p class="text-on-secondary-container opacity-70 text-xs">Culinary Director</p>
+</div>
+</div>
+<blockquote class="text-on-secondary-container italic font-medium leading-relaxed">
+                    "Don't be afraid of the heat. Whether you're starting with toast or a soufflé, every great chef began with a single simple ingredient."
+                </blockquote>
+</div>
+<!-- Decorative icon -->
+<span class="material-symbols-outlined absolute -bottom-4 -right-4 text-8xl text-on-secondary-container opacity-10 rotate-12">restaurant_menu</span>
+</section>
+</main>
+<!-- Bottom Action Bar -->
+<footer class="fixed bottom-0 left-0 w-full z-50 bg-[#fdf9f4]/80 backdrop-blur-md px-6 pb-8 pt-4 flex gap-4 items-center">
+<button class="flex-1 py-4 text-[#534438] font-bold text-base hover:bg-[#f1ede8] transition-colors rounded-full">
+            Skip
+        </button>
+<button class="flex-[2] py-4 bg-gradient-to-br from-[#6c3a00] to-[#8d4e03] text-white font-bold text-base rounded-full shadow-[0_12px_32px_rgba(46,21,0,0.15)] active:scale-95 transition-transform">
+            Continue
+        </button>
+</footer>
+</body></html>

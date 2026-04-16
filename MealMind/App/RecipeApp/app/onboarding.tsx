@@ -130,6 +130,17 @@ export default function OnboardingScreen() {
       dislikes,
       vegetarianFocus: prev?.vegetarianFocus ?? false,
       pescetarianFriendly: prev?.pescetarianFriendly ?? false,
+      wellnessGoal: prev?.wellnessGoal ?? 'unsure',
+      dietaryPreference: prev?.dietaryPreference ?? 'none',
+      cuisines: prev?.cuisines ?? [],
+      allergies: prev?.allergies ?? [],
+      avoidFoods: prev?.avoidFoods ?? [],
+      cookingExperience: prev?.cookingExperience ?? 'home_cook',
+      kitchenEquipment: prev?.kitchenEquipment ?? [],
+      cookingSchedule: prev?.cookingSchedule ?? 'flexible',
+      flavorProfile: prev?.flavorProfile ?? [],
+      spicyLevel: prev?.spicyLevel ?? 'medium',
+      calorieFocus: prev?.calorieFocus ?? 'no_preference',
     };
     await setProfile(next);
     await setGetStartedSeen();

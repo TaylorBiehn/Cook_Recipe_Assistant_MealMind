@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Personalize Your Palate</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-tertiary-fixed-variant": "#743500",
+                        "error": "#ba1a1a",
+                        "tertiary": "#733500",
+                        "surface-variant": "#e6e2dd",
+                        "on-secondary-fixed": "#141f07",
+                        "inverse-on-surface": "#f4f0eb",
+                        "tertiary-fixed-dim": "#ffb689",
+                        "surface": "#fdf9f4",
+                        "surface-dim": "#ddd9d5",
+                        "primary-fixed-dim": "#ffb779",
+                        "primary": "#6c3a00",
+                        "on-secondary-fixed-variant": "#3e4b2f",
+                        "on-primary": "#ffffff",
+                        "on-surface": "#1c1c19",
+                        "inverse-surface": "#31302d",
+                        "tertiary-container": "#974700",
+                        "surface-container-low": "#f7f3ee",
+                        "on-tertiary": "#ffffff",
+                        "on-primary-fixed-variant": "#6c3a00",
+                        "on-primary-container": "#ffcea7",
+                        "on-primary-fixed": "#2e1500",
+                        "error-container": "#ffdad6",
+                        "on-secondary": "#ffffff",
+                        "outline": "#857466",
+                        "surface-container-lowest": "#ffffff",
+                        "surface-container-highest": "#e6e2dd",
+                        "secondary-fixed": "#d9e8c2",
+                        "primary-fixed": "#ffdcc1",
+                        "on-error": "#ffffff",
+                        "primary-container": "#8d4e03",
+                        "on-tertiary-fixed": "#311300",
+                        "background": "#fdf9f4",
+                        "inverse-primary": "#ffb779",
+                        "surface-bright": "#fdf9f4",
+                        "secondary": "#556345",
+                        "on-error-container": "#93000a",
+                        "surface-container": "#f1ede8",
+                        "surface-tint": "#8e4f04",
+                        "on-tertiary-container": "#ffcdb0",
+                        "on-surface-variant": "#534438",
+                        "on-secondary-container": "#5a6749",
+                        "secondary-fixed-dim": "#bdcca7",
+                        "on-background": "#1c1c19",
+                        "secondary-container": "#d6e5bf",
+                        "surface-container-high": "#ebe8e3",
+                        "outline-variant": "#d8c3b3",
+                        "tertiary-fixed": "#ffdbc8"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "1rem",
+                        "lg": "2rem",
+                        "xl": "3rem",
+                        "full": "9999px"
+                    },
+                    "fontFamily": {
+                        "headline": ["Plus Jakarta Sans"],
+                        "body": ["Plus Jakarta Sans"],
+                        "label": ["Plus Jakarta Sans"]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-surface text-on-surface min-h-screen pb-32">
+<!-- TopAppBar -->
+<header class="fixed top-0 w-full z-50 bg-[#fdf9f4]/80 dark:bg-[#1c1c19]/80 backdrop-blur-md">
+<div class="flex items-center justify-between px-6 h-16 w-full">
+<button class="active:scale-95 transition-transform duration-200 text-[#6c3a00] dark:text-[#ffdcc1]">
+<span class="material-symbols-outlined" data-icon="arrow_back">arrow_back</span>
+</button>
+<h1 class="text-lg font-bold text-[#1c1c19] dark:text-[#fdf9f4] font-['Plus_Jakarta_Sans'] tracking-tight">Personalize</h1>
+<div class="w-6"></div> <!-- Spacer for centering -->
+</div>
+</header>
+<main class="pt-24 px-6 max-w-md mx-auto">
+<!-- Hero Section -->
+<div class="mb-8">
+<h2 class="text-3xl font-extrabold text-on-background tracking-tight mb-3">Are there any foods you avoid?</h2>
+<p class="text-on-surface-variant text-md leading-relaxed">Tell us your dietary preferences so we can refine your recipe recommendations.</p>
+</div>
+<!-- Options Grid: Asymmetric Bento Style -->
+<div class="grid grid-cols-2 gap-4 mb-12">
+<!-- Option: None (Featured Size) -->
+<button class="col-span-2 group flex items-center justify-between p-5 bg-secondary-container text-on-secondary-container rounded-lg active:scale-[0.98] transition-all duration-200">
+<div class="flex items-center gap-4">
+<span class="material-symbols-outlined text-2xl" data-icon="check_circle">check_circle</span>
+<span class="font-bold text-lg">None</span>
+</div>
+<div class="w-6 h-6 rounded-full border-2 border-on-secondary-container/30 flex items-center justify-center">
+<div class="w-3 h-3 bg-primary rounded-full opacity-0 group-focus:opacity-100 transition-opacity"></div>
+</div>
+</button>
+<!-- Option: Pork -->
+<button class="flex flex-col gap-3 p-4 bg-surface-container rounded-lg active:scale-[0.98] transition-all duration-200 text-left">
+<span class="material-symbols-outlined text-primary text-2xl" data-icon="set_meal">set_meal</span>
+<span class="font-semibold">Pork</span>
+</button>
+<!-- Option: Beef -->
+<button class="flex flex-col gap-3 p-4 bg-surface-container rounded-lg active:scale-[0.98] transition-all duration-200 text-left">
+<span class="material-symbols-outlined text-primary text-2xl" data-icon="restaurant">restaurant</span>
+<span class="font-semibold">Beef</span>
+</button>
+<!-- Option: Chicken -->
+<button class="flex flex-col gap-3 p-4 bg-surface-container rounded-lg active:scale-[0.98] transition-all duration-200 text-left">
+<span class="material-symbols-outlined text-primary text-2xl" data-icon="egg">egg</span>
+<span class="font-semibold">Chicken</span>
+</button>
+<!-- Option: Seafood -->
+<button class="flex flex-col gap-3 p-4 bg-surface-container-high rounded-lg active:scale-[0.98] transition-all duration-200 text-left">
+<span class="material-symbols-outlined text-primary text-2xl" data-icon="phishing">phishing</span>
+<span class="font-semibold">Seafood</span>
+</button>
+<!-- Option: Dairy -->
+<button class="flex flex-col gap-3 p-4 bg-surface-container rounded-lg active:scale-[0.98] transition-all duration-200 text-left border-2 border-transparent focus:border-primary">
+<span class="material-symbols-outlined text-primary text-2xl" data-icon="opacity">opacity</span>
+<span class="font-semibold">Dairy</span>
+</button>
+<!-- Option: Processed food -->
+<button class="flex flex-col gap-3 p-4 bg-surface-container rounded-lg active:scale-[0.98] transition-all duration-200 text-left">
+<span class="material-symbols-outlined text-primary text-2xl" data-icon="inventory_2">inventory_2</span>
+<span class="font-semibold">Processed food</span>
+</button>
+<!-- Option: Sugary food -->
+<button class="flex flex-col gap-3 p-4 bg-surface-container-high rounded-lg active:scale-[0.98] transition-all duration-200 text-left">
+<span class="material-symbols-outlined text-primary text-2xl" data-icon="icecream">icecream</span>
+<span class="font-semibold">Sugary food</span>
+</button>
+<!-- Option: Fried food -->
+<button class="flex flex-col gap-3 p-4 bg-surface-container rounded-lg active:scale-[0.98] transition-all duration-200 text-left">
+<span class="material-symbols-outlined text-primary text-2xl" data-icon="cooking">cooking</span>
+<span class="font-semibold">Fried food</span>
+</button>
+<!-- Option: Other -->
+<button class="col-span-2 flex items-center gap-4 p-5 bg-surface-container-low rounded-lg active:scale-[0.98] transition-all duration-200">
+<span class="material-symbols-outlined text-primary" data-icon="add_circle">add_circle</span>
+<span class="font-semibold">Other</span>
+</button>
+</div>
+<!-- Atmospheric Background Image at Bottom -->
+<div class="relative w-full h-48 rounded-xl overflow-hidden mb-12">
+<img alt="Kitchen scene" class="w-full h-full object-cover opacity-80" data-alt="warm cozy kitchen scene with soft morning sunlight hitting wooden countertops, fresh herbs in terracotta pots, and rustic cooking utensils" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDk75YErrn-CBjlO_WJTXdNe4lQ8u9_9nSvPYCtKhppAQbHN79_PUiHJaa_RyupP_rhIoUiAGQ5Rgcnv0oCCuocm6QcB2WvY2YUaV7KF9hH4NqXEa6xpaSs3D75mOHuJM04qkEAPkMim6at7V8YdUb4Fp4NE-03eaxKg0cLdcWs0ghVHokf6QRSOBrbib3mUJZzuP0iQ3Kn1RQPXK7P3Bka2118vl82N0EIA9KSPqC9RLsXhJqFOwM5SU1BVehS56pjyASMHWXXXkMv"/>
+<div class="absolute inset-0 bg-gradient-to-t from-surface via-transparent to-transparent"></div>
+</div>
+</main>
+<!-- BottomNavBar -->
+<nav class="fixed bottom-0 left-0 w-full flex justify-between items-center px-8 py-6 mb-safe bg-[#fdf9f4] dark:bg-[#1c1c19] shadow-[0_-12px_32px_rgba(46,21,0,0.06)] rounded-t-[3rem] z-50">
+<!-- Inactive Action: Skip -->
+<button class="flex flex-row items-center gap-2 text-[#534438] dark:text-[#d8c3b3] px-6 py-3 font-['Plus_Jakarta_Sans'] text-sm font-semibold hover:opacity-90 active:scale-[0.98] transition-all duration-200">
+<span class="material-symbols-outlined" data-icon="close">close</span>
+            Skip
+        </button>
+<!-- Active Action: Continue -->
+<button class="flex flex-row items-center gap-2 bg-gradient-to-br from-[#6c3a00] to-[#8d4e03] text-white rounded-full px-8 py-3 font-['Plus_Jakarta_Sans'] text-sm font-semibold hover:opacity-90 active:scale-[0.98] transition-all duration-200">
+            Continue
+            <span class="material-symbols-outlined" data-icon="arrow_forward">arrow_forward</span>
+</button>
+</nav>
+</body></html>
