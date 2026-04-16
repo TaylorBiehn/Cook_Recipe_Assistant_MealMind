@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Smart Family Recipe Assistant</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;family=Be+Vietnam+Pro:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "on-secondary-container": "#5a6745",
+                    "on-primary": "#ffffff",
+                    "primary-fixed-dim": "#ffb77a",
+                    "on-surface": "#1d1b1a",
+                    "primary-container": "#ff9f43",
+                    "on-tertiary": "#ffffff",
+                    "tertiary-container": "#c0b59c",
+                    "secondary": "#566342",
+                    "inverse-surface": "#32302e",
+                    "on-error-container": "#93000a",
+                    "outline": "#877365",
+                    "secondary-fixed": "#dae8be",
+                    "inverse-on-surface": "#f5f0ed",
+                    "surface-container-highest": "#e7e1df",
+                    "on-tertiary-container": "#4e4733",
+                    "secondary-fixed-dim": "#becca3",
+                    "surface-variant": "#e7e1df",
+                    "inverse-primary": "#ffb77a",
+                    "on-surface-variant": "#544437",
+                    "on-primary-container": "#6d3a00",
+                    "surface-container": "#f2edea",
+                    "on-tertiary-fixed": "#211b0b",
+                    "tertiary-fixed": "#eee1c7",
+                    "surface": "#fef8f5",
+                    "surface-container-high": "#ede7e4",
+                    "tertiary": "#665e49",
+                    "primary-fixed": "#ffdcc2",
+                    "surface-tint": "#8f4e00",
+                    "outline-variant": "#dac2b1",
+                    "surface-dim": "#ded9d6",
+                    "background": "#fef8f5",
+                    "error": "#ba1a1a",
+                    "on-primary-fixed-variant": "#6d3a00",
+                    "on-tertiary-fixed-variant": "#4e4633",
+                    "error-container": "#ffdad6",
+                    "on-secondary": "#ffffff",
+                    "surface-container-lowest": "#ffffff",
+                    "on-background": "#1d1b1a",
+                    "on-error": "#ffffff",
+                    "on-primary-fixed": "#2e1500",
+                    "primary": "#8f4e00",
+                    "secondary-container": "#d7e5bb",
+                    "surface-container-low": "#f8f2f0",
+                    "tertiary-fixed-dim": "#d1c5ac",
+                    "on-secondary-fixed-variant": "#3f4b2c",
+                    "surface-bright": "#fef8f5",
+                    "on-secondary-fixed": "#141f05"
+            },
+            "borderRadius": {
+                    "DEFAULT": "1rem",
+                    "lg": "2rem",
+                    "xl": "3rem",
+                    "full": "9999px"
+            },
+            "fontFamily": {
+                    "headline": ["Plus Jakarta Sans"],
+                    "body": ["Be Vietnam Pro"],
+                    "label": ["Be Vietnam Pro"]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+      .material-symbols-outlined {
+        font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+      }
+      .glow-gradient {
+        background: linear-gradient(135deg, #8f4e00 0%, #ff9f43 100%);
+      }
+      .editorial-tracking {
+        letter-spacing: -0.02em;
+      }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+</head>
+<body class="bg-surface font-body text-on-surface antialiased min-h-screen pb-32">
+<header class="bg-[#fef8f5]/80 dark:bg-[#1d1b1a]/80 backdrop-blur-xl flex items-center justify-between px-6 py-4 w-full docked full-width top-0 sticky z-50">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-[#8f4e00] dark:text-[#ff9f43]">arrow_back</span>
+<h1 class="text-lg font-extrabold text-[#8f4e00] dark:text-[#ff9f43] tracking-tighter font-headline">Smart Family Recipe Assistant</h1>
+</div>
+<div class="flex items-center gap-4">
+<span class="material-symbols-outlined text-[#1d1b1a] dark:text-[#fef8f5]">notifications</span>
+<div class="w-8 h-8 rounded-full bg-secondary-container flex items-center justify-center">
+<span class="material-symbols-outlined text-on-secondary-container text-sm">person</span>
+</div>
+</div>
+</header>
+<main class="px-6 pt-8 max-w-2xl mx-auto space-y-10">
+<section class="space-y-2">
+<span class="text-secondary font-semibold tracking-wider text-xs uppercase">Daily Inspiration</span>
+<h2 class="text-4xl font-headline font-extrabold text-on-surface editorial-tracking leading-tight">What should I cook today?</h2>
+</section>
+<section class="relative group">
+<div class="absolute -top-12 -right-4 w-32 h-32 bg-secondary-fixed opacity-20 blur-3xl rounded-full"></div>
+<div class="bg-surface-container-lowest p-6 rounded-lg shadow-sm border-none ring-1 ring-on-surface/5 transition-all duration-300 hover:ring-primary/20">
+<label class="block text-sm font-medium text-on-surface-variant mb-3">Add your ingredients</label>
+<div class="relative">
+<textarea class="w-full bg-surface-container-high border-none rounded-lg p-5 text-on-surface placeholder:text-on-surface-variant/40 focus:ring-2 focus:ring-primary/20 focus:bg-surface-container-lowest transition-all min-h-[140px] resize-none" placeholder="e.g. egg, tomato, avocado, spinach..."></textarea>
+<div class="absolute bottom-4 right-4 flex gap-2">
+<button class="w-12 h-12 flex items-center justify-center rounded-full bg-surface-container text-primary shadow-sm hover:scale-95 transition-transform border border-outline-variant/20">
+<span class="material-symbols-outlined" data-icon="mic">mic</span>
+</button>
+<button class="w-12 h-12 flex items-center justify-center rounded-full bg-primary-container text-on-primary-container shadow-lg hover:scale-95 transition-transform">
+<span class="material-symbols-outlined" data-icon="photo_camera">photo_camera</span>
+</button>
+</div>
+</div>
+<div class="mt-4 flex flex-wrap gap-2">
+<span class="px-3 py-1 bg-surface-container text-on-surface-variant rounded-full text-xs font-medium border border-outline-variant/15 flex items-center gap-1">
+                        egg <span class="material-symbols-outlined text-xs">close</span>
+</span>
+<span class="px-3 py-1 bg-surface-container text-on-surface-variant rounded-full text-xs font-medium border border-outline-variant/15 flex items-center gap-1">
+                        tomato <span class="material-symbols-outlined text-xs">close</span>
+</span>
+</div>
+</div>
+</section>
+<section class="space-y-6">
+<div class="space-y-3">
+<h3 class="font-headline font-bold text-lg">Cooking Time</h3>
+<div class="flex gap-3 overflow-x-auto pb-2 -mx-6 px-6 no-scrollbar">
+<button class="px-6 py-3 rounded-full bg-secondary-container text-on-secondary-container font-medium whitespace-nowrap hover:bg-secondary-fixed-dim transition-colors">10 min</button>
+<button class="px-6 py-3 rounded-full bg-surface-container-low text-on-surface-variant font-medium whitespace-nowrap border border-outline-variant/10">20 min</button>
+<button class="px-6 py-3 rounded-full bg-surface-container-low text-on-surface-variant font-medium whitespace-nowrap border border-outline-variant/10">30 min</button>
+<button class="px-6 py-3 rounded-full bg-surface-container-low text-on-surface-variant font-medium whitespace-nowrap border border-outline-variant/10">45+ min</button>
+</div>
+</div>
+<div class="space-y-3">
+<h3 class="font-headline font-bold text-lg">Meal Type</h3>
+<div class="flex gap-3 overflow-x-auto pb-2 -mx-6 px-6 no-scrollbar">
+<button class="px-6 py-3 rounded-full bg-surface-container-low text-on-surface-variant font-medium whitespace-nowrap border border-outline-variant/10">Breakfast</button>
+<button class="px-6 py-3 rounded-full bg-secondary-container text-on-secondary-container font-medium whitespace-nowrap">Lunch</button>
+<button class="px-6 py-3 rounded-full bg-surface-container-low text-on-surface-variant font-medium whitespace-nowrap border border-outline-variant/10">Dinner</button>
+<button class="px-6 py-3 rounded-full bg-surface-container-low text-on-surface-variant font-medium whitespace-nowrap border border-outline-variant/10">Snacks</button>
+</div>
+</div>
+<div class="space-y-3">
+<h3 class="font-headline font-bold text-lg">Cooking Style</h3>
+<div class="flex gap-3 overflow-x-auto pb-2 -mx-6 px-6 no-scrollbar">
+<button class="px-6 py-3 rounded-full bg-surface-container-low text-on-surface-variant font-medium whitespace-nowrap border border-outline-variant/10">Quick Meals</button>
+<button class="px-6 py-3 rounded-full bg-surface-container-low text-on-surface-variant font-medium whitespace-nowrap border border-outline-variant/10">Family Meals</button>
+<button class="px-6 py-3 rounded-full bg-surface-container-low text-on-surface-variant font-medium whitespace-nowrap border border-outline-variant/10">Budget Friendly</button>
+<button class="px-6 py-3 rounded-full bg-surface-container-low text-on-surface-variant font-medium whitespace-nowrap border border-outline-variant/10">Healthy</button>
+</div>
+</div>
+</section>
+<section class="pt-4">
+<div class="bg-tertiary-container/30 rounded-lg p-6 flex items-center gap-6 overflow-hidden relative">
+<div class="z-10 flex-1">
+<h4 class="font-headline font-bold text-lg editorial-tracking">Suggested for You</h4>
+<p class="text-sm text-on-surface-variant mt-1">Mediterranean Shakshuka with farm fresh eggs.</p>
+</div>
+<div class="w-24 h-24 rounded-full overflow-hidden flex-shrink-0 shadow-lg border-4 border-surface rotate-3 z-10">
+<img alt="shakshuka" class="w-full h-full object-cover" data-alt="vibrant red shakshuka in a black skillet with perfectly cooked eggs and sprinkled fresh parsley with feta cheese" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBVdzWu6qZielUSrDqsR71dKDs4UbFmBpVqCLlP8Qfhn7RqLCIbqft8LlfFjQlvDPvGOHxdJL0G_gkhSS7HlZNsNNB0xBTn3mpdEa3n3UUatqcDhzXsTVrVWT85Ye_MU3Ymn_z-rJB4G0Ef9rETb4LZas-EXX5kG8078RJrf-naqjwPeTXhYVe9_z8Esdc9Q7onHkX8Czmjae_w_gWLj9btDTogUw8ynUfY5oPVA4onrK1h3e9xS6kJEFEjRqiUAZE1P2pL7foaJvQ"/>
+</div>
+<div class="absolute -bottom-10 -left-10 w-40 h-40 bg-tertiary-fixed-dim rounded-full opacity-20"></div>
+</div>
+</section>
+<div class="fixed bottom-32 left-0 w-full px-6 flex justify-center z-40 pointer-events-none">
+<button class="glow-gradient text-white px-10 py-5 rounded-xl shadow-[0_12px_40px_rgba(143,78,0,0.3)] font-bold text-lg editorial-tracking flex items-center gap-3 active:scale-95 duration-200 pointer-events-auto">
+<span>Find My Meal</span>
+<span class="material-symbols-outlined" data-icon="restaurant_menu">restaurant_menu</span>
+</button>
+</div>
+</main>
+<nav class="fixed bottom-0 left-0 w-full flex justify-around items-center px-8 pb-6 pt-2 bg-[#fef8f5]/80 dark:bg-[#1d1b1a]/80 backdrop-blur-xl z-50 rounded-t-[3rem] shadow-[0_-12px_40px_rgba(29,27,26,0.06)]">
+<a class="flex flex-col items-center justify-center bg-[#ff9f43] text-white rounded-full p-3 active:scale-90 duration-300 ease-out" href="#">
+<span class="material-symbols-outlined" data-icon="home" style="font-variation-settings: 'FILL' 1;">home</span>
+</a>
+<a class="flex flex-col items-center justify-center text-[#1d1b1a]/60 dark:text-[#fef8f5]/60 p-3 hover:bg-[#f8f2f0] dark:hover:bg-[#1d1b1a] rounded-full transition-colors active:scale-90 duration-300 ease-out" href="#">
+<span class="material-symbols-outlined" data-icon="favorite">favorite</span>
+</a>
+<a class="flex flex-col items-center justify-center text-[#1d1b1a]/60 dark:text-[#fef8f5]/60 p-3 hover:bg-[#f8f2f0] dark:hover:bg-[#1d1b1a] rounded-full transition-colors active:scale-90 duration-300 ease-out" href="#">
+<span class="material-symbols-outlined" data-icon="person">person</span>
+</a>
+</nav>
+</body></html>

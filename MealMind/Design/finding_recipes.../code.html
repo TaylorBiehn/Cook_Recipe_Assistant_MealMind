@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Smart Family Recipe Assistant - Loading</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;family=Be_Vietnam_Pro:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-secondary-container": "#5a6745",
+                        "on-primary": "#ffffff",
+                        "primary-fixed-dim": "#ffb77a",
+                        "on-surface": "#1d1b1a",
+                        "primary-container": "#ff9f43",
+                        "on-tertiary": "#ffffff",
+                        "tertiary-container": "#c0b59c",
+                        "secondary": "#566342",
+                        "inverse-surface": "#32302e",
+                        "on-error-container": "#93000a",
+                        "outline": "#877365",
+                        "secondary-fixed": "#dae8be",
+                        "inverse-on-surface": "#f5f0ed",
+                        "surface-container-highest": "#e7e1df",
+                        "on-tertiary-container": "#4e4733",
+                        "secondary-fixed-dim": "#becca3",
+                        "surface-variant": "#e7e1df",
+                        "inverse-primary": "#ffb77a",
+                        "on-surface-variant": "#544437",
+                        "on-primary-container": "#6d3a00",
+                        "surface-container": "#f2edea",
+                        "on-tertiary-fixed": "#211b0b",
+                        "tertiary-fixed": "#eee1c7",
+                        "surface": "#fef8f5",
+                        "surface-container-high": "#ede7e4",
+                        "tertiary": "#665e49",
+                        "primary-fixed": "#ffdcc2",
+                        "surface-tint": "#8f4e00",
+                        "outline-variant": "#dac2b1",
+                        "surface-dim": "#ded9d6",
+                        "background": "#fef8f5",
+                        "error": "#ba1a1a",
+                        "on-primary-fixed-variant": "#6d3a00",
+                        "on-tertiary-fixed-variant": "#4e4633",
+                        "error-container": "#ffdad6",
+                        "on-secondary": "#ffffff",
+                        "surface-container-lowest": "#ffffff",
+                        "on-background": "#1d1b1a",
+                        "on-error": "#ffffff",
+                        "on-primary-fixed": "#2e1500",
+                        "primary": "#8f4e00",
+                        "secondary-container": "#d7e5bb",
+                        "surface-container-low": "#f8f2f0",
+                        "tertiary-fixed-dim": "#d1c5ac",
+                        "on-secondary-fixed-variant": "#3f4b2c",
+                        "surface-bright": "#fef8f5",
+                        "on-secondary-fixed": "#141f05"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "1rem",
+                        "lg": "2rem",
+                        "xl": "3rem",
+                        "full": "9999px"
+                    },
+                    "fontFamily": {
+                        "headline": ["Plus Jakarta Sans"],
+                        "body": ["Be Vietnam Pro"],
+                        "label": ["Be Vietnam Pro"]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+            100% { transform: translateY(0px); }
+        }
+        .animate-float {
+            animation: float 3s ease-in-out infinite;
+        }
+        .progress-bar-shimmer {
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+            background-size: 200% 100%;
+            animation: shimmer 2s infinite;
+        }
+        @keyframes shimmer {
+            0% { background-position: -200% 0; }
+            100% { background-position: 200% 0; }
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-surface font-body text-on-surface antialiased overflow-hidden">
+<header class="bg-[#fef8f5]/80 dark:bg-[#1d1b1a]/80 backdrop-blur-xl flex items-center justify-between px-6 py-4 w-full docked full-width top-0 sticky z-50">
+<div class="flex items-center gap-4">
+<button class="text-[#8f4e00] dark:text-[#ff9f43] hover:opacity-80 transition-opacity Active: scale-95 duration-200">
+<span class="material-symbols-outlined">arrow_back</span>
+</button>
+<h1 class="text-lg font-extrabold text-[#8f4e00] dark:text-[#ff9f43] tracking-tighter font-['Plus_Jakarta_Sans']">Smart Family Recipe Assistant</h1>
+</div>
+</header>
+<main class="min-h-[calc(100vh-140px)] flex flex-col items-center justify-center px-6 relative">
+<div class="absolute top-20 left-10 w-64 h-64 bg-secondary-container/20 rounded-full blur-3xl -z-10"></div>
+<div class="absolute bottom-40 right-10 w-80 h-80 bg-primary-container/10 rounded-full blur-3xl -z-10"></div>
+<div class="max-w-md w-full text-center space-y-12">
+<div class="relative inline-block">
+<div class="w-48 h-48 rounded-xl bg-surface-container-lowest flex items-center justify-center relative overflow-hidden group">
+<img alt="Kitchen prep" class="absolute inset-0 w-full h-full object-cover opacity-20 grayscale transition-transform duration-700 scale-110" data-alt="Soft focused close up of fresh organic vegetables on a rustic wooden kitchen counter with warm natural sunlight" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB9xFzJHF0x0V0ScQgCmZK48mGTKS-FoQI3rkh8Du332MaX7Iv69QxLiut_01IF1ee7jfFpKFvCx3mGJO2ip21Cgw47SGZVBLo_WbOUeQAfg-AtVPpXcttSOT3V3OLUtruvjW61B9CSpSkKNkhietM-10ZTFuqR75aloqjdD3igXj_Vmt6bKWlHGHbqy4mBhsh_8239Q_J02mAoNB3giG1E855dR32msh39SXJrpAzGRhoPN4O2OxEIUCZ1m28tYHiTi90Kzxnga4M"/>
+<div class="relative z-10 p-8 rounded-full bg-gradient-to-br from-primary to-primary-container shadow-xl animate-float">
+<span class="material-symbols-outlined text-white text-6xl" style="font-variation-settings: 'FILL' 1;">restaurant</span>
+</div>
+</div>
+<div class="absolute -top-4 -right-4 p-4 rounded-xl bg-secondary-container shadow-lg animate-float" style="animation-delay: 0.5s;">
+<span class="material-symbols-outlined text-on-secondary-container text-3xl">set_meal</span>
+</div>
+<div class="absolute -bottom-4 -left-4 p-4 rounded-xl bg-tertiary-fixed shadow-lg animate-float" style="animation-delay: 1.2s;">
+<span class="material-symbols-outlined text-on-tertiary-fixed text-3xl">local_fire_department</span>
+</div>
+</div>
+<div class="space-y-4">
+<h2 class="text-3xl font-headline font-bold text-on-surface tracking-tight leading-tight">Finding the best meals for you...</h2>
+<p class="text-on-surface-variant text-lg max-w-xs mx-auto">We're curating recipes that match your family's taste and dietary preferences.</p>
+</div>
+<div class="w-full space-y-6">
+<div class="h-3 w-full bg-surface-container-high rounded-full overflow-hidden relative">
+<div class="absolute top-0 left-0 h-full bg-gradient-to-r from-primary to-primary-container rounded-full w-[65%] transition-all duration-1000 ease-in-out relative overflow-hidden">
+<div class="absolute inset-0 progress-bar-shimmer"></div>
+</div>
+</div>
+<div class="flex justify-between items-center px-2">
+<div class="flex items-center gap-2">
+<span class="w-2 h-2 rounded-full bg-primary animate-pulse"></span>
+<span class="text-sm font-medium text-primary">Analyzing pantry items</span>
+</div>
+<span class="text-sm font-bold text-on-surface-variant">65%</span>
+</div>
+</div>
+<div class="grid grid-cols-2 gap-4 mt-8 opacity-40">
+<div class="bg-surface-container-low p-4 rounded-lg flex flex-col items-center gap-2">
+<span class="material-symbols-outlined text-secondary">eco</span>
+<div class="h-2 w-16 bg-outline-variant/30 rounded-full"></div>
+</div>
+<div class="bg-surface-container-low p-4 rounded-lg flex flex-col items-center gap-2">
+<span class="material-symbols-outlined text-secondary">timer</span>
+<div class="h-2 w-16 bg-outline-variant/30 rounded-full"></div>
+</div>
+</div>
+</div>
+</main>
+<footer class="fixed bottom-0 left-0 w-full flex justify-around items-center px-8 pb-6 pt-2 bg-[#fef8f5]/80 dark:bg-[#1d1b1a]/80 backdrop-blur-xl z-50 rounded-t-[3rem] shadow-[0_-12px_40px_rgba(29,27,26,0.06)]">
+<a class="flex flex-col items-center justify-center bg-[#ff9f43] text-white rounded-full p-3 Active: scale-90 duration-300 ease-out" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">home</span>
+<span class="font-['Be_Vietnam_Pro'] text-[11px] font-medium">Home</span>
+</a>
+<a class="flex flex-col items-center justify-center text-[#1d1b1a]/60 dark:text-[#fef8f5]/60 p-3 hover:bg-[#f8f2f0] dark:hover:bg-[#1d1b1a] rounded-full transition-colors Active: scale-90 duration-300 ease-out" href="#">
+<span class="material-symbols-outlined">favorite</span>
+<span class="font-['Be_Vietnam_Pro'] text-[11px] font-medium">Favorites</span>
+</a>
+<a class="flex flex-col items-center justify-center text-[#1d1b1a]/60 dark:text-[#fef8f5]/60 p-3 hover:bg-[#f8f2f0] dark:hover:bg-[#1d1b1a] rounded-full transition-colors Active: scale-90 duration-300 ease-out" href="#">
+<span class="material-symbols-outlined">person</span>
+<span class="font-['Be_Vietnam_Pro'] text-[11px] font-medium">Profile</span>
+</a>
+</footer>
+</body></html>

@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&amp;family=Be+Vietnam+Pro:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "on-secondary-container": "#5a6745",
+                    "on-primary": "#ffffff",
+                    "primary-fixed-dim": "#ffb77a",
+                    "on-surface": "#1d1b1a",
+                    "primary-container": "#ff9f43",
+                    "on-tertiary": "#ffffff",
+                    "tertiary-container": "#c0b59c",
+                    "secondary": "#566342",
+                    "inverse-surface": "#32302e",
+                    "on-error-container": "#93000a",
+                    "outline": "#877365",
+                    "secondary-fixed": "#dae8be",
+                    "inverse-on-surface": "#f5f0ed",
+                    "surface-container-highest": "#e7e1df",
+                    "on-tertiary-container": "#4e4733",
+                    "secondary-fixed-dim": "#becca3",
+                    "surface-variant": "#e7e1df",
+                    "inverse-primary": "#ffb77a",
+                    "on-surface-variant": "#544437",
+                    "on-primary-container": "#6d3a00",
+                    "surface-container": "#f2edea",
+                    "on-tertiary-fixed": "#211b0b",
+                    "tertiary-fixed": "#eee1c7",
+                    "surface": "#fef8f5",
+                    "surface-container-high": "#ede7e4",
+                    "tertiary": "#665e49",
+                    "primary-fixed": "#ffdcc2",
+                    "surface-tint": "#8f4e00",
+                    "outline-variant": "#dac2b1",
+                    "surface-dim": "#ded9d6",
+                    "background": "#fef8f5",
+                    "error": "#ba1a1a",
+                    "on-primary-fixed-variant": "#6d3a00",
+                    "on-tertiary-fixed-variant": "#4e4633",
+                    "error-container": "#ffdad6",
+                    "on-secondary": "#ffffff",
+                    "surface-container-lowest": "#ffffff",
+                    "on-background": "#1d1b1a",
+                    "on-error": "#ffffff",
+                    "on-primary-fixed": "#2e1500",
+                    "primary": "#8f4e00",
+                    "secondary-container": "#d7e5bb",
+                    "surface-container-low": "#f8f2f0",
+                    "tertiary-fixed-dim": "#d1c5ac",
+                    "on-secondary-fixed-variant": "#3f4b2c",
+                    "surface-bright": "#fef8f5",
+                    "on-secondary-fixed": "#141f05"
+            },
+            "borderRadius": {
+                    "DEFAULT": "1rem",
+                    "lg": "2rem",
+                    "xl": "3rem",
+                    "full": "9999px"
+            },
+            "fontFamily": {
+                    "headline": ["Plus Jakarta Sans"],
+                    "body": ["Be Vietnam Pro"],
+                    "label": ["Be Vietnam Pro"]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .recipe-gradient {
+            background: linear-gradient(135deg, #8f4e00 0%, #ff9f43 100%);
+        }
+        .glass-header {
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-surface font-body text-on-surface antialiased">
+<!-- TopAppBar -->
+<header class="bg-[#fef8f5]/80 dark:bg-[#1d1b1a]/80 backdrop-blur-xl docked full-width top-0 sticky z-50 flex items-center justify-between px-6 py-4 w-full">
+<div class="flex items-center gap-4">
+<button class="text-[#8f4e00] dark:text-[#ff9f43] hover:opacity-80 transition-opacity Active: scale-95 duration-200">
+<span class="material-symbols-outlined">arrow_back</span>
+</button>
+<h1 class="text-lg font-extrabold text-[#8f4e00] dark:text-[#ff9f43] tracking-tighter font-['Plus_Jakarta_Sans']">Smart Family Recipe Assistant</h1>
+</div>
+<div class="flex items-center gap-2">
+<button class="p-2 rounded-full hover:bg-surface-container transition-colors">
+<span class="material-symbols-outlined">search</span>
+</button>
+</div>
+</header>
+<main class="max-w-5xl mx-auto px-6 pt-8 pb-32">
+<!-- Editorial Header -->
+<section class="mb-10">
+<div class="flex items-end justify-between mb-2">
+<h2 class="text-4xl font-headline font-bold tracking-tight text-on-surface leading-tight">Your Favorites</h2>
+<span class="text-label-md font-medium text-on-surface-variant mb-1">12 Recipes</span>
+</div>
+<div class="h-1.5 w-16 recipe-gradient rounded-full"></div>
+</section>
+<!-- Search & Filter Bar (Compact) -->
+<div class="flex gap-3 mb-10 overflow-x-auto pb-2 scrollbar-hide">
+<button class="bg-primary text-on-primary px-6 py-3 rounded-xl font-medium whitespace-nowrap text-sm shadow-lg shadow-primary/20">All Favorites</button>
+<button class="bg-secondary-container text-on-secondary-container px-6 py-3 rounded-xl font-medium whitespace-nowrap text-sm hover:opacity-90 transition-opacity">Quick Meals</button>
+<button class="bg-secondary-container text-on-secondary-container px-6 py-3 rounded-xl font-medium whitespace-nowrap text-sm hover:opacity-90 transition-opacity">Kid-Friendly</button>
+<button class="bg-secondary-container text-on-secondary-container px-6 py-3 rounded-xl font-medium whitespace-nowrap text-sm hover:opacity-90 transition-opacity">Healthy</button>
+</div>
+<!-- Bento Grid / Asymmetric Layout for Favorites -->
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+<!-- Large Featured Favorite Card -->
+<div class="md:col-span-2 group relative overflow-hidden bg-surface-container-lowest rounded-lg">
+<div class="aspect-[16/9] w-full relative overflow-hidden">
+<img class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" data-alt="Gourmet salad bowl with roasted sweet potato, kale, and toasted seeds in soft natural morning light" src="https://lh3.googleusercontent.com/aida-public/AB6AXuARJ93sHwYt5yEXdlDISjupfDinSIbuRMHA32tDfboyASbE893eOY5hhMm-TQFYWzo96JHL2EC3UTtly9_WtxOAp16_qaSs5rO6pjEO-jFrRS37N3EpGJLZULmVwZv0edQ0CjqqnPSk78LNVKVbETo8wt-zuxqb85CqRx1g4ydLX1SgvJtsbzCcpRsQJJBnEsCGbtaAnbPT4UgXwpRWBgTsojFl3OPcgdSkxFxncEYNXcffi8oNGU7l_dbSz163ns15UzQE7vebvJ0"/>
+<div class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent"></div>
+<button class="absolute top-4 right-4 bg-white/90 backdrop-blur-sm p-3 rounded-full text-primary shadow-lg">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">favorite</span>
+</button>
+</div>
+<div class="p-6">
+<div class="flex gap-2 mb-3">
+<span class="bg-secondary-container text-on-secondary-container text-[10px] uppercase tracking-widest font-bold px-3 py-1 rounded-full">Most Cooked</span>
+<span class="bg-tertiary-fixed text-on-tertiary-fixed text-[10px] uppercase tracking-widest font-bold px-3 py-1 rounded-full">25 Mins</span>
+</div>
+<h3 class="text-2xl font-headline font-bold text-on-surface mb-2 leading-tight">Harvest Quinoa Bowl with Miso Dressing</h3>
+<p class="text-on-surface-variant text-sm leading-relaxed mb-4 line-clamp-2">A nutritious, colorful bowl packed with seasonal vegetables and a creamy umami dressing that the kids will actually love.</p>
+</div>
+</div>
+<!-- Compact Card 1 -->
+<div class="bg-surface-container-lowest rounded-lg overflow-hidden flex flex-col group border border-transparent hover:border-outline-variant/20 transition-all">
+<div class="aspect-square relative overflow-hidden">
+<img class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" data-alt="Artisanal veggie pizza on a rustic wooden table with fresh basil leaves and glowing warm atmosphere" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAAfhppDhaC1KHn2avEen4rC9tVrQqhPEb4wguHZVthECEZ7w-fGjrA4fajB2vEpOdSDWfw6rkJHa2PbmTSL0CWVAF2JuUxDLUAOmZnVTwKEL2AILB8JG_jL8rZIWU13hx_D8BuNuiwF_qey2pt-0yBlHO78dW3SxOu4yE_xphbAoF-QoWHGdMifU4rzpy_7Q62BZq8dNKWzMzygDQy8lX17Rai7lJWYn8_t0WFYn7ef7sCOjb3dncJyOHPafyjhLXGINwAh8tNfC8"/>
+<button class="absolute top-4 right-4 bg-white/90 backdrop-blur-sm p-2 rounded-full text-primary">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">favorite</span>
+</button>
+</div>
+<div class="p-5 flex-grow">
+<span class="text-[10px] uppercase tracking-widest font-bold text-secondary mb-1 block">Vegetarian</span>
+<h4 class="font-headline font-bold text-lg text-on-surface mb-2 leading-snug">Crispy Thin Crust Garden Pizza</h4>
+<div class="flex items-center gap-4 text-on-surface-variant">
+<div class="flex items-center gap-1">
+<span class="material-symbols-outlined text-sm">schedule</span>
+<span class="text-xs font-medium tracking-tight">15m</span>
+</div>
+<div class="flex items-center gap-1">
+<span class="material-symbols-outlined text-sm">local_fire_department</span>
+<span class="text-xs font-medium tracking-tight">320 kcal</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Compact Card 2 -->
+<div class="bg-surface-container-lowest rounded-lg overflow-hidden flex flex-col group border border-transparent hover:border-outline-variant/20 transition-all">
+<div class="aspect-square relative overflow-hidden">
+<img class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" data-alt="Creamy pesto pasta with sun-dried tomatoes and parmesan shavings in an editorial food photography style" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAN6-e2yHWHTqcbnhf7qh-lT6vpoUyydZK2KXsdpUZYpfEmUbVTi6C_AtnDO1JktbbQhnaEMG7wW1dvMLPM7UAGqQtZo-I0szScwo_BLJfbwu9oEOoW-QdkowA54Ex_Kb3iE2yMdHYAdjZgQDRpK0rAaXeaZdU4InrRlUe3eP7i9rfAeQH7PRvltgwb4DpER7SvlbmQQuJvMf6TxJNyEkI7e5WWTS3gZcceRPllu__0tf7pV01GDOtyGnVUfkr5LcswmndO6o3bPi8"/>
+<button class="absolute top-4 right-4 bg-white/90 backdrop-blur-sm p-2 rounded-full text-primary">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">favorite</span>
+</button>
+</div>
+<div class="p-5 flex-grow">
+<span class="text-[10px] uppercase tracking-widest font-bold text-secondary mb-1 block">Pasta Night</span>
+<h4 class="font-headline font-bold text-lg text-on-surface mb-2 leading-snug">Creamy Pesto &amp; Sundried Tomato Penne</h4>
+<div class="flex items-center gap-4 text-on-surface-variant">
+<div class="flex items-center gap-1">
+<span class="material-symbols-outlined text-sm">schedule</span>
+<span class="text-xs font-medium tracking-tight">20m</span>
+</div>
+<div class="flex items-center gap-1">
+<span class="material-symbols-outlined text-sm">group</span>
+<span class="text-xs font-medium tracking-tight">Serves 4</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Compact Card 3 (Textured/Asymmetric) -->
+<div class="bg-surface-container-lowest rounded-lg overflow-hidden flex flex-col group border border-transparent hover:border-outline-variant/20 transition-all">
+<div class="aspect-square relative overflow-hidden">
+<img class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" data-alt="Healthy berry smoothie bowl topped with granola and chia seeds on a bright morning kitchen counter" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDUkk0KC2HamHz34hYr8RsqlF0ux_N6TJeqf_A46M8EFugQTEQW_bXmCv5xZOAbGjOEsX3V7mWntlxJDLh0aHQNaig_3Ivyhk-5N3bKdhpgeZCOfB05gIBARAJOg84wRggSdYmNHmmQzMXCdT6XgNPzPjGulYNCk4Nh2Im5IrSNdDt49y9k-j2GttY_nAMQFqpnADwW23Wa8nMSMcoUIl7YotwV_unD6jMH1YzuQb5KgwKSGagYoHVXg0ksJhaQB2aAmprzTZzKfEg"/>
+<button class="absolute top-4 right-4 bg-white/90 backdrop-blur-sm p-2 rounded-full text-primary">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">favorite</span>
+</button>
+</div>
+<div class="p-5 flex-grow">
+<span class="text-[10px] uppercase tracking-widest font-bold text-secondary mb-1 block">Breakfast</span>
+<h4 class="font-headline font-bold text-lg text-on-surface mb-2 leading-snug">Power Berry Smoothie Bowl</h4>
+<div class="flex items-center gap-4 text-on-surface-variant">
+<div class="flex items-center gap-1">
+<span class="material-symbols-outlined text-sm">schedule</span>
+<span class="text-xs font-medium tracking-tight">10m</span>
+</div>
+<div class="flex items-center gap-1">
+<span class="material-symbols-outlined text-sm">star</span>
+<span class="text-xs font-medium tracking-tight">Quick Fix</span>
+</div>
+</div>
+</div>
+</div>
+<!-- List Format / Compact Row for smaller favorites -->
+<div class="md:col-span-2 lg:col-span-3 mt-4 space-y-4">
+<h3 class="text-xl font-headline font-bold text-on-surface px-2">Quick Access</h3>
+<div class="bg-surface-container-low rounded-lg p-3 flex items-center gap-4 group cursor-pointer hover:bg-surface-container transition-colors">
+<div class="h-16 w-16 rounded-xl overflow-hidden shrink-0">
+<img class="h-full w-full object-cover" data-alt="Chocolate chip cookies on a cooling rack with soft focus kitchen background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBchFc_7knlv-U9hPJUdIpbWED6NW7WhZjCjYy2wBsOOndjR2OGJY-8aaNAUthNfrr0o92YcPu6WiikH2ny0-38mAsaQPF1qHvzBl4ThhKxec0WYyFjAnsGEQ6vMOjxk1rkogBNPq43oLDIUUrRb9rQNheY8XJApeNy-hn_JP8L1ixGJF3c2VsjmPiu5YAA3996L_lIRYt2F3h73oSaRVKZHwbiIjoPTmGELP4NzlOoN7jpZz3jkf7Yb85BIJVIjbXxRMGmf5fSGaM"/>
+</div>
+<div class="flex-grow">
+<h5 class="font-headline font-bold text-on-surface">Secret Family Cookies</h5>
+<p class="text-xs text-on-surface-variant">Baked 3 days ago • Kid Favorite</p>
+</div>
+<button class="text-primary p-2">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">favorite</span>
+</button>
+</div>
+<div class="bg-surface-container-low rounded-lg p-3 flex items-center gap-4 group cursor-pointer hover:bg-surface-container transition-colors">
+<div class="h-16 w-16 rounded-xl overflow-hidden shrink-0">
+<img class="h-full w-full object-cover" data-alt="Fresh vibrant green salad with sliced radishes and lemon vinaigrette" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAdRRONb-l9PfZSb2SekaANY4XSDB7cVxdmADbmxZXzAqV9N4JFFFvMuWgsXZ1nRpAbJdaKOZoy7f5cAI-udrrpHVGI5BLhIJAif9xSzFry_R3nwrHTA9bsbRjJh2c7hFThZdxok5OsOub5D2-OlCEuGbtaEbLssJFJuon3LxA2B9q9Adr_Ty5uysiQf5VyQCtCypztfIqinxhEY9wGv2kCFD7qmppJbqz7QvQ6CbkYb-qDMln5LEdbfc6cxQhoFqeu_2RaxHSuNnk"/>
+</div>
+<div class="flex-grow">
+<h5 class="font-headline font-bold text-on-surface">Zesty Arugula Salad</h5>
+<p class="text-xs text-on-surface-variant">Ready in 5 mins • Low Cal</p>
+</div>
+<button class="text-primary p-2">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">favorite</span>
+</button>
+</div>
+</div>
+</div>
+</main>
+<!-- BottomNavBar -->
+<nav class="bg-[#fef8f5]/80 dark:bg-[#1d1b1a]/80 backdrop-blur-xl fixed bottom-0 left-0 w-full flex justify-around items-center px-8 pb-6 pt-2 z-50 rounded-t-[3rem] shadow-[0_-12px_40px_rgba(29,27,26,0.06)]">
+<a class="flex flex-col items-center justify-center text-[#1d1b1a]/60 dark:text-[#fef8f5]/60 p-3 hover:bg-[#f8f2f0] dark:hover:bg-[#1d1b1a] rounded-full transition-colors Active: scale-90 duration-300 ease-out" href="#">
+<span class="material-symbols-outlined">home</span>
+<span class="font-['Be_Vietnam_Pro'] text-[11px] font-medium mt-1">Home</span>
+</a>
+<a class="flex flex-col items-center justify-center bg-[#ff9f43] text-white rounded-full p-3 shadow-lg shadow-[#ff9f43]/40 Active: scale-90 duration-300 ease-out" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">favorite</span>
+<span class="font-['Be_Vietnam_Pro'] text-[11px] font-medium mt-1">Favorites</span>
+</a>
+<a class="flex flex-col items-center justify-center text-[#1d1b1a]/60 dark:text-[#fef8f5]/60 p-3 hover:bg-[#f8f2f0] dark:hover:bg-[#1d1b1a] rounded-full transition-colors Active: scale-90 duration-300 ease-out" href="#">
+<span class="material-symbols-outlined">person</span>
+<span class="font-['Be_Vietnam_Pro'] text-[11px] font-medium mt-1">Profile</span>
+</a>
+</nav>
+</body></html>

@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Smart Family Recipe Assistant</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;family=Be+Vietnam+Pro:wght@400;500;600&amp;family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "on-secondary-container": "#5a6745",
+                    "on-primary": "#ffffff",
+                    "primary-fixed-dim": "#ffb77a",
+                    "on-surface": "#1d1b1a",
+                    "primary-container": "#ff9f43",
+                    "on-tertiary": "#ffffff",
+                    "tertiary-container": "#c0b59c",
+                    "secondary": "#566342",
+                    "inverse-surface": "#32302e",
+                    "on-error-container": "#93000a",
+                    "outline": "#877365",
+                    "secondary-fixed": "#dae8be",
+                    "inverse-on-surface": "#f5f0ed",
+                    "surface-container-highest": "#e7e1df",
+                    "on-tertiary-container": "#4e4733",
+                    "secondary-fixed-dim": "#becca3",
+                    "surface-variant": "#e7e1df",
+                    "inverse-primary": "#ffb77a",
+                    "on-surface-variant": "#544437",
+                    "on-primary-container": "#6d3a00",
+                    "surface-container": "#f2edea",
+                    "on-tertiary-fixed": "#211b0b",
+                    "tertiary-fixed": "#eee1c7",
+                    "surface": "#fef8f5",
+                    "surface-container-high": "#ede7e4",
+                    "tertiary": "#665e49",
+                    "primary-fixed": "#ffdcc2",
+                    "surface-tint": "#8f4e00",
+                    "outline-variant": "#dac2b1",
+                    "surface-dim": "#ded9d6",
+                    "background": "#fef8f5",
+                    "error": "#ba1a1a",
+                    "on-primary-fixed-variant": "#6d3a00",
+                    "on-tertiary-fixed-variant": "#4e4633",
+                    "error-container": "#ffdad6",
+                    "on-secondary": "#ffffff",
+                    "surface-container-lowest": "#ffffff",
+                    "on-background": "#1d1b1a",
+                    "on-error": "#ffffff",
+                    "on-primary-fixed": "#2e1500",
+                    "primary": "#8f4e00",
+                    "secondary-container": "#d7e5bb",
+                    "surface-container-low": "#f8f2f0",
+                    "tertiary-fixed-dim": "#d1c5ac",
+                    "on-secondary-fixed-variant": "#3f4b2c",
+                    "surface-bright": "#fef8f5",
+                    "on-secondary-fixed": "#141f05"
+            },
+            "borderRadius": {
+                    "DEFAULT": "1rem",
+                    "lg": "2rem",
+                    "xl": "3rem",
+                    "full": "9999px"
+            },
+            "fontFamily": {
+                    "headline": ["Plus Jakarta Sans"],
+                    "body": ["Be Vietnam Pro"],
+                    "label": ["Be Vietnam Pro"]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .glow-gradient {
+            background: linear-gradient(135deg, #8f4e00 0%, #ff9f43 100%);
+        }
+        .culinary-glass {
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+        }
+    </style>
+<style>
+        body {
+            min-height: max(884px, 100dvh);
+        }
+    </style>
+</head>
+<body class="bg-surface font-body text-on-surface antialiased">
+<!-- Top Navigation -->
+<nav class="bg-[#fef8f5]/80 dark:bg-[#1d1b1a]/80 backdrop-blur-xl flex items-center justify-between px-6 py-4 w-full docked full-width top-0 sticky z-50">
+<div class="flex items-center gap-4">
+<button class="text-[#8f4e00] dark:text-[#ff9f43] Active: scale-95 duration-200">
+<span class="material-symbols-outlined" data-icon="arrow_back">arrow_back</span>
+</button>
+<h1 class="font-['Plus_Jakarta_Sans'] font-bold tracking-tight text-lg text-[#8f4e00] dark:text-[#ff9f43]">Smart Family Recipe Assistant</h1>
+</div>
+<button class="text-[#1d1b1a] dark:text-[#fef8f5] hover:opacity-80 transition-opacity">
+<span class="material-symbols-outlined" data-icon="share">share</span>
+</button>
+</nav>
+<main class="pb-32">
+<!-- Hero Section with Asymmetric Layout -->
+<section class="relative w-full h-[450px] md:h-[600px] overflow-hidden">
+<img alt="Healthy Tomato Egg Scramble" class="w-full h-full object-cover" data-alt="Close-up of a vibrant tomato egg scramble in a white ceramic bowl, garnished with fresh scallions, soft natural morning kitchen light" src="https://lh3.googleusercontent.com/aida-public/AB6AXuA0atyc0LdJu3erXTpalmwkddFnEh8ZEhyJJiAFnum1-NgftGMtCE2RorgmahnmvMz75BBpXyCX_OdUfCA0Bn0XVaLBtlaY_SONunITNVQYRZ_kN2Ihtz5K0ad5eEQNBZheUoeKk5a5rLePXjUFeKhUrS3jLaNToVn9haiiNakHGwSAwEr3xmGMzWaTmPv8IJu3taMTIdnSr8KwCFDdIgfUjE6SjKaTQf9C2sz8DeiaRxOknRlmGug07fSQHa0-XyUOtm0qXK5_eTg"/>
+<div class="absolute inset-0 bg-gradient-to-t from-surface via-transparent to-transparent"></div>
+<!-- Recipe Meta Floating Card -->
+<div class="absolute bottom-6 left-6 right-6 md:left-12 md:right-auto md:w-[400px] culinary-glass bg-surface/80 rounded-lg p-6 shadow-[0_12px_40px_rgba(29,27,26,0.06)]">
+<div class="flex flex-wrap gap-3 mb-4">
+<span class="bg-secondary-container text-on-secondary-container px-4 py-1.5 rounded-full text-sm font-medium tracking-wide">Quick Meal</span>
+<span class="bg-tertiary-fixed text-on-tertiary-fixed px-4 py-1.5 rounded-full text-sm font-medium tracking-wide">High Protein</span>
+</div>
+<h2 class="font-headline text-3xl md:text-4xl font-bold text-on-surface leading-tight tracking-tight mb-4">Healthy Tomato Egg Scramble</h2>
+<div class="flex items-center justify-between border-t border-outline-variant/15 pt-4">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary" data-icon="schedule">schedule</span>
+<span class="text-sm font-medium">15 mins</span>
+</div>
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary" data-icon="restaurant">restaurant</span>
+<span class="text-sm font-medium">2 servings</span>
+</div>
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary" data-icon="fire_calorie">fitbit_calories</span>
+<span class="text-sm font-medium">320 kcal</span>
+</div>
+</div>
+</div>
+</section>
+<!-- Video Tutorial Section -->
+<section class="max-w-6xl mx-auto px-6 mt-8">
+<div class="relative group cursor-pointer overflow-hidden rounded-lg shadow-lg aspect-video bg-surface-container-highest border border-outline-variant/10">
+<img alt="Video Thumbnail" class="w-full h-full object-cover opacity-90 transition-transform duration-500 group-hover:scale-105" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBC6_6S17_6V48_0v-K_W_C9G-46t_eP_L-4-Z8K0-6t-8-4-0-6-6-6-6-6-6-6-6-6-6-6-6-6-6-6-6-6-6-6-6-6-6-6-6-6-6-6-6-6-6-6-6-6-6-6"/>
+<div class="absolute inset-0 bg-black/20 flex flex-col items-center justify-center gap-4 transition-colors group-hover:bg-black/30">
+<div class="w-16 h-16 md:w-20 md:h-20 bg-white/90 rounded-full flex items-center justify-center shadow-2xl transition-transform group-hover:scale-110">
+<span class="material-symbols-outlined text-primary text-4xl md:text-5xl" style="font-variation-settings: 'FILL' 1;">play_arrow</span>
+</div>
+<div class="text-center">
+<p class="font-headline font-bold text-white text-lg md:text-xl drop-shadow-md">Watch Video Tutorial</p>
+<p class="text-white/90 text-sm md:text-base font-medium drop-shadow-sm">Master the perfect creamy scramble (2:45)</p>
+</div>
+</div>
+<div class="absolute bottom-4 right-4 bg-black/60 backdrop-blur-md px-3 py-1 rounded-full flex items-center gap-2 border border-white/10">
+<span class="material-symbols-outlined text-white text-sm" data-icon="hd">hd</span>
+<span class="text-white text-xs font-bold tracking-wider">4K</span>
+</div>
+</div>
+</section>
+<div class="max-w-6xl mx-auto px-6 mt-12 grid grid-cols-1 lg:grid-cols-12 gap-12">
+<!-- Ingredients Section -->
+<aside class="lg:col-span-4 space-y-8">
+<div class="bg-surface-container-low rounded-lg p-8">
+<h3 class="font-headline text-xl font-bold text-on-surface mb-6 flex items-center gap-2">
+<span class="material-symbols-outlined text-primary" data-icon="shopping_basket">shopping_basket</span>
+                        Ingredients
+                    </h3>
+<ul class="space-y-4">
+<li class="flex items-center justify-between group">
+<div class="flex items-center gap-3">
+<div class="w-2 h-2 rounded-full bg-primary/40"></div>
+<span class="text-on-surface">Large eggs</span>
+</div>
+<span class="text-sm font-semibold text-on-surface-variant bg-surface-container-highest px-3 py-1 rounded-full">4 units</span>
+</li>
+<li class="flex items-center justify-between group">
+<div class="flex items-center gap-3">
+<div class="w-2 h-2 rounded-full bg-primary/40"></div>
+<span class="text-on-surface">Ripe tomatoes</span>
+</div>
+<span class="text-sm font-semibold text-on-surface-variant bg-surface-container-highest px-3 py-1 rounded-full">2 medium</span>
+</li>
+<li class="flex items-center justify-between group">
+<div class="flex items-center gap-3">
+<div class="w-2 h-2 rounded-full bg-primary/40"></div>
+<span class="text-on-surface">Green onions</span>
+</div>
+<span class="text-sm font-semibold text-on-surface-variant bg-surface-container-highest px-3 py-1 rounded-full">2 stalks</span>
+</li>
+<li class="flex items-center justify-between group">
+<div class="flex items-center gap-3">
+<div class="w-2 h-2 rounded-full bg-primary/40"></div>
+<span class="text-on-surface">Olive oil</span>
+</div>
+<span class="text-sm font-semibold text-on-surface-variant bg-surface-container-highest px-3 py-1 rounded-full">1 tbsp</span>
+</li>
+<li class="flex items-center justify-between group">
+<div class="flex items-center gap-3">
+<div class="w-2 h-2 rounded-full bg-primary/40"></div>
+<span class="text-on-surface">Salt &amp; Pepper</span>
+</div>
+<span class="text-sm font-semibold text-on-surface-variant bg-surface-container-highest px-3 py-1 rounded-full">To taste</span>
+</li>
+</ul>
+<div class="mt-8 p-4 bg-surface-container-lowest rounded-xl border border-outline-variant/10">
+<p class="text-xs font-medium text-on-surface-variant mb-2 uppercase tracking-widest">Family Tip</p>
+<p class="text-sm leading-relaxed italic text-on-secondary-fixed-variant">Add a teaspoon of honey while sautéing tomatoes to balance the acidity for kids!</p>
+</div>
+</div>
+</aside>
+<!-- Instructions Section -->
+<article class="lg:col-span-8">
+<h3 class="font-headline text-2xl font-bold text-on-surface mb-8 flex items-center gap-2">
+<span class="material-symbols-outlined text-primary" data-icon="skillet">skillet</span>
+                    Preparation Steps
+                </h3>
+<div class="space-y-6">
+<!-- Active Step -->
+<div class="bg-tertiary-container/10 border-l-4 border-primary p-8 rounded-r-lg">
+<div class="flex items-start gap-6">
+<span class="font-headline text-4xl font-extrabold text-primary/30 leading-none">01</span>
+<div>
+<h4 class="font-bold text-lg mb-2">Prep the Base</h4>
+<p class="text-on-surface-variant leading-relaxed">Whisk the eggs in a small bowl with a pinch of salt. Dice the tomatoes into 1-inch chunks and thinly slice the green onions.</p>
+</div>
+</div>
+</div>
+<!-- Subsequent Steps -->
+<div class="bg-surface-container-lowest p-8 rounded-lg shadow-sm">
+<div class="flex items-start gap-6">
+<span class="font-headline text-4xl font-extrabold text-outline-variant leading-none">02</span>
+<div>
+<h4 class="font-bold text-lg mb-2">Sauté Tomatoes</h4>
+<p class="text-on-surface-variant leading-relaxed">Heat olive oil in a non-stick skillet over medium-high heat. Add tomatoes and sauté for 3-4 minutes until they soften and release their juices.</p>
+</div>
+</div>
+</div>
+<div class="bg-surface-container-lowest p-8 rounded-lg shadow-sm">
+<div class="flex items-start gap-6">
+<span class="font-headline text-4xl font-extrabold text-outline-variant leading-none">03</span>
+<div>
+<h4 class="font-bold text-lg mb-2">Scramble</h4>
+<p class="text-on-surface-variant leading-relaxed">Pour in the whisked eggs. Let them sit for 10 seconds, then gently fold them into the tomatoes until just set but still creamy.</p>
+</div>
+</div>
+</div>
+<div class="bg-surface-container-lowest p-8 rounded-lg shadow-sm">
+<div class="flex items-start gap-6">
+<span class="font-headline text-4xl font-extrabold text-outline-variant leading-none">04</span>
+<div>
+<h4 class="font-bold text-lg mb-2">Final Garnish</h4>
+<p class="text-on-surface-variant leading-relaxed">Remove from heat. Top with sliced green onions and extra black pepper. Serve immediately with warm sourdough toast.</p>
+</div>
+</div>
+</div>
+</div>
+<!-- Bento Style Nutrition Info -->
+<div class="mt-12 grid grid-cols-2 md:grid-cols-4 gap-4">
+<div class="bg-surface-container-low p-4 rounded-lg text-center">
+<span class="block text-2xl font-bold text-primary">12g</span>
+<span class="text-xs uppercase tracking-wider font-medium text-on-surface-variant">Protein</span>
+</div>
+<div class="bg-surface-container-low p-4 rounded-lg text-center">
+<span class="block text-2xl font-bold text-primary">8g</span>
+<span class="text-xs uppercase tracking-wider font-medium text-on-surface-variant">Carbs</span>
+</div>
+<div class="bg-surface-container-low p-4 rounded-lg text-center">
+<span class="block text-2xl font-bold text-primary">18g</span>
+<span class="text-xs uppercase tracking-wider font-medium text-on-surface-variant">Fats</span>
+</div>
+<div class="bg-surface-container-low p-4 rounded-lg text-center">
+<span class="block text-2xl font-bold text-primary">2g</span>
+<span class="text-xs uppercase tracking-wider font-medium text-on-surface-variant">Fiber</span>
+</div>
+</div>
+</article>
+</div>
+</main>
+<!-- Fixed Bottom Actions -->
+<div class="fixed bottom-0 left-0 w-full px-6 pb-8 pt-4 bg-gradient-to-t from-surface via-surface to-transparent z-50">
+<div class="max-w-2xl mx-auto flex gap-4">
+<button class="flex-1 glow-gradient text-white h-16 rounded-xl font-headline font-bold text-lg flex items-center justify-center gap-3 shadow-xl active:scale-95 transition-transform">
+<span class="material-symbols-outlined" data-icon="favorite" data-weight="fill" style="font-variation-settings: 'FILL' 1;">favorite</span>
+                Save to Favorites
+            </button>
+<button class="w-16 h-16 bg-surface-container-highest rounded-xl flex items-center justify-center text-on-surface hover:bg-outline-variant/20 transition-colors">
+<span class="material-symbols-outlined" data-icon="timer">timer</span>
+</button>
+</div>
+</div>
+</body></html>

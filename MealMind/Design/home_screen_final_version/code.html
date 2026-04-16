@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Culinary Curator - Home</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;family=Be+Vietnam+Pro:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "inverse-surface": "#32302e",
+                    "tertiary-container": "#c0b59c",
+                    "on-tertiary": "#ffffff",
+                    "outline": "#877365",
+                    "on-secondary-container": "#5a6745",
+                    "on-error-container": "#93000a",
+                    "on-error": "#ffffff",
+                    "primary-container": "#ff9f43",
+                    "surface": "#fef8f5",
+                    "tertiary": "#665e49",
+                    "surface-tint": "#8f4e00",
+                    "surface-dim": "#ded9d6",
+                    "on-primary-fixed-variant": "#6d3a00",
+                    "secondary-fixed-dim": "#becca3",
+                    "inverse-on-surface": "#f5f0ed",
+                    "error-container": "#ffdad6",
+                    "on-tertiary-fixed": "#211b0b",
+                    "on-secondary-fixed": "#141f05",
+                    "on-primary-container": "#6d3a00",
+                    "surface-variant": "#e7e1df",
+                    "outline-variant": "#dac2b1",
+                    "surface-container-highest": "#e7e1df",
+                    "on-background": "#1d1b1a",
+                    "inverse-primary": "#ffb77a",
+                    "surface-bright": "#fef8f5",
+                    "secondary-fixed": "#dae8be",
+                    "secondary": "#566342",
+                    "on-secondary": "#ffffff",
+                    "on-primary-fixed": "#2e1500",
+                    "surface-container-low": "#f8f2f0",
+                    "surface-container-lowest": "#ffffff",
+                    "primary-fixed-dim": "#ffb77a",
+                    "on-surface": "#1d1b1a",
+                    "primary": "#8f4e00",
+                    "tertiary-fixed-dim": "#d1c5ac",
+                    "primary-fixed": "#ffdcc2",
+                    "on-tertiary-fixed-variant": "#4e4633",
+                    "on-primary": "#ffffff",
+                    "on-tertiary-container": "#4e4733",
+                    "on-surface-variant": "#544437",
+                    "background": "#fef8f5",
+                    "tertiary-fixed": "#eee1c7",
+                    "surface-container-high": "#ede7e4",
+                    "surface-container": "#f2edea",
+                    "secondary-container": "#d7e5bb",
+                    "on-secondary-fixed-variant": "#3f4b2c",
+                    "error": "#ba1a1a"
+            },
+            "borderRadius": {
+                    "DEFAULT": "1rem",
+                    "lg": "2rem",
+                    "xl": "3rem",
+                    "full": "9999px"
+            },
+            "fontFamily": {
+                    "headline": ["Plus Jakarta Sans"],
+                    "body": ["Be Vietnam Pro"],
+                    "label": ["Be Vietnam Pro"]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .editorial-shadow {
+            box-shadow: 0 12px 40px rgba(29, 27, 26, 0.06);
+        }
+        .hide-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .hide-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+</head>
+<body class="bg-surface text-on-surface font-body selection:bg-primary-fixed">
+<!-- Top App Bar -->
+<header class="fixed top-0 w-full z-50 bg-[#fef8f5]/80 backdrop-blur-md flex justify-between items-center px-6 h-16 shadow-[0_12px_40px_rgba(29,27,26,0.06)]">
+<div class="flex items-center gap-4">
+<button class="hover:opacity-80 transition-opacity active:scale-95 text-[#8f4e00]">
+<span class="material-symbols-outlined">menu</span>
+</button>
+<h1 class="font-headline tracking-tight text-xl font-bold text-[#8f4e00]">Culinary Curator</h1>
+</div>
+<div class="flex items-center gap-4">
+<button class="hover:opacity-80 transition-opacity active:scale-95 text-[#8f4e00]">
+<span class="material-symbols-outlined">account_circle</span>
+</button>
+</div>
+</header>
+<main class="pt-24 pb-48 px-6 max-w-5xl mx-auto space-y-10">
+<!-- Hero Search Section -->
+<section class="space-y-6">
+<div class="space-y-2">
+<h2 class="font-headline text-4xl font-extrabold tracking-tight text-on-surface">What's in your kitchen?</h2>
+<p class="text-on-surface-variant font-medium">Add ingredients to discover your next family meal.</p>
+</div>
+<div class="relative group">
+<div class="flex items-center bg-surface-container-high rounded-xl p-2 transition-all focus-within:bg-surface-container-lowest focus-within:ring-2 ring-primary/20">
+<span class="material-symbols-outlined text-outline ml-3">search</span>
+<input class="bg-transparent border-none focus:ring-0 w-full py-4 px-4 font-medium text-lg text-on-surface placeholder:text-outline-variant" placeholder="Enter ingredients (e.g. Chicken, Spinach)" type="text"/>
+<div class="flex items-center gap-2 pr-2">
+<button class="p-3 rounded-full hover:bg-secondary-container text-primary transition-colors">
+<span class="material-symbols-outlined">mic</span>
+</button>
+<button class="p-3 rounded-full hover:bg-secondary-container text-primary transition-colors">
+<span class="material-symbols-outlined">photo_camera</span>
+</button>
+</div>
+</div>
+</div>
+</section>
+<!-- Filters Section -->
+<section class="space-y-6">
+<!-- Meal Type -->
+<div class="space-y-4">
+<h3 class="font-headline text-sm font-bold uppercase tracking-widest text-outline">Meal Type</h3>
+<div class="flex gap-3 overflow-x-auto hide-scrollbar">
+<button class="px-6 py-3 bg-primary text-on-primary rounded-xl font-bold flex-shrink-0 shadow-md">Breakfast</button>
+<button class="px-6 py-3 bg-secondary-container text-on-secondary-container rounded-xl font-bold flex-shrink-0 hover:bg-outline-variant transition-colors">Lunch</button>
+<button class="px-6 py-3 bg-secondary-container text-on-secondary-container rounded-xl font-bold flex-shrink-0 hover:bg-outline-variant transition-colors">Dinner</button>
+<button class="px-6 py-3 bg-secondary-container text-on-secondary-container rounded-xl font-bold flex-shrink-0 hover:bg-outline-variant transition-colors">Snacks</button>
+</div>
+</div>
+<!-- Cooking Style -->
+<div class="space-y-4">
+<h3 class="font-headline text-sm font-bold uppercase tracking-widest text-outline">Cooking Style</h3>
+<div class="flex gap-3 overflow-x-auto hide-scrollbar">
+<button class="px-5 py-2.5 bg-surface-container-lowest border border-outline-variant/30 text-on-surface rounded-full font-medium flex-shrink-0 flex items-center gap-2 shadow-sm">
+<span class="material-symbols-outlined text-sm">bolt</span> Quick Meals
+                    </button>
+<button class="px-5 py-2.5 bg-surface-container-lowest border border-outline-variant/30 text-on-surface rounded-full font-medium flex-shrink-0 flex items-center gap-2 shadow-sm">
+<span class="material-symbols-outlined text-sm">group</span> Family Meals
+                    </button>
+<button class="px-5 py-2.5 bg-surface-container-lowest border border-outline-variant/30 text-on-surface rounded-full font-medium flex-shrink-0 flex items-center gap-2 shadow-sm">
+<span class="material-symbols-outlined text-sm">savings</span> Budget Friendly
+                    </button>
+<button class="px-5 py-2.5 bg-surface-container-lowest border border-outline-variant/30 text-on-surface rounded-full font-medium flex-shrink-0 flex items-center gap-2 shadow-sm">
+<span class="material-symbols-outlined text-sm">eco</span> Healthy
+                    </button>
+</div>
+</div>
+<!-- Cooking Time -->
+<div class="space-y-4">
+<h3 class="font-headline text-sm font-bold uppercase tracking-widest text-outline">Cooking Time</h3>
+<div class="flex gap-3 overflow-x-auto hide-scrollbar">
+<button class="px-6 py-3 bg-secondary-container text-on-secondary-container rounded-xl font-bold flex-shrink-0 hover:bg-outline-variant transition-colors">&lt;15 min</button>
+<button class="px-6 py-3 bg-secondary-container text-on-secondary-container rounded-xl font-bold flex-shrink-0 hover:bg-outline-variant transition-colors">15-30 min</button>
+<button class="px-6 py-3 bg-secondary-container text-on-secondary-container rounded-xl font-bold flex-shrink-0 hover:bg-outline-variant transition-colors">30+ min</button>
+</div>
+</div>
+</section>
+<!-- Dynamic Recent History -->
+<section class="space-y-6">
+<div class="flex justify-between items-end">
+<div class="space-y-1">
+<h3 class="font-headline text-2xl font-bold text-on-surface">Recent Cookbooks</h3>
+<p class="text-on-surface-variant text-sm">Ingredients you used recently</p>
+</div>
+<button class="text-primary font-bold text-sm hover:underline">Clear all</button>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+<!-- History Item 1 -->
+<div class="bg-surface-container-low rounded-lg p-6 space-y-4 group hover:bg-surface-container transition-colors">
+<div class="flex justify-between items-start">
+<div>
+<span class="text-xs font-bold text-outline uppercase tracking-tighter">Oct 24, 2023</span>
+<h4 class="font-headline font-bold text-lg text-on-surface">Autumn Stew Night</h4>
+</div>
+<button class="text-primary p-2 bg-primary-container/20 rounded-full hover:bg-primary-container/40 transition-colors">
+<span class="material-symbols-outlined">add_circle</span>
+</button>
+</div>
+<div class="flex flex-wrap gap-2">
+<span class="px-3 py-1 bg-surface-container-lowest text-xs font-medium rounded-full text-on-surface-variant">Beef Chuck</span>
+<span class="px-3 py-1 bg-surface-container-lowest text-xs font-medium rounded-full text-on-surface-variant">Carrots</span>
+<span class="px-3 py-1 bg-surface-container-lowest text-xs font-medium rounded-full text-on-surface-variant">Red Wine</span>
+<span class="px-3 py-1 bg-surface-container-lowest text-xs font-medium rounded-full text-on-surface-variant">Thyme</span>
+</div>
+</div>
+<!-- History Item 2 -->
+<div class="bg-surface-container-low rounded-lg p-6 space-y-4 group hover:bg-surface-container transition-colors">
+<div class="flex justify-between items-start">
+<div>
+<span class="text-xs font-bold text-outline uppercase tracking-tighter">Yesterday</span>
+<h4 class="font-headline font-bold text-lg text-on-surface">Quick Pasta Dinner</h4>
+</div>
+<button class="text-primary p-2 bg-primary-container/20 rounded-full hover:bg-primary-container/40 transition-colors">
+<span class="material-symbols-outlined">add_circle</span>
+</button>
+</div>
+<div class="flex flex-wrap gap-2">
+<span class="px-3 py-1 bg-surface-container-lowest text-xs font-medium rounded-full text-on-surface-variant">Penne</span>
+<span class="px-3 py-1 bg-surface-container-lowest text-xs font-medium rounded-full text-on-surface-variant">Zucchini</span>
+<span class="px-3 py-1 bg-surface-container-lowest text-xs font-medium rounded-full text-on-surface-variant">Parmesan</span>
+<span class="px-3 py-1 bg-surface-container-lowest text-xs font-medium rounded-full text-on-surface-variant">Lemon</span>
+</div>
+</div>
+<!-- History Item 3 - Expandable hint -->
+<div class="bg-surface-container-low rounded-lg p-6 flex flex-col items-center justify-center border-2 border-dashed border-outline-variant/30 opacity-60 hover:opacity-100 transition-all cursor-pointer">
+<span class="material-symbols-outlined text-outline mb-2">history</span>
+<p class="font-bold text-on-surface-variant">View Full History</p>
+</div>
+</div>
+</section>
+<!-- Featured Seasonal Inspiration -->
+<section class="grid grid-cols-1 md:grid-cols-3 gap-6 pt-6">
+<div class="md:col-span-2 relative h-64 rounded-lg overflow-hidden group">
+<img class="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" data-alt="rustic wooden table with a vibrant bowl of vegetable soup, crusty bread, and fresh herbs in warm golden sunlight" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCUYrigExE_1p27TyKw-Dzrul_Fo6P2M4pAbBPVHjgW-UEoiIiLtdcM7Vkr_JwM-4RJYgD25yLR62o3KiqHZ1pltianwOLn_jdqbliqE46QDa8fTDBfsndoaaYq_PTJscR5n5Vbhz0_YCQQJXVEa6F9CnW0bWcIDkPotOXMxuklkA6q-BZhKqIWCyz3S6nipJKpVeMVz3kBdF0XQPT-roApjEAuiT0BN0ySZdVuGTimffjDlxy7CGd0tPJEHzPmo639v8kwWRVlM78"/>
+<div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent"></div>
+<div class="absolute bottom-6 left-6 right-6">
+<span class="bg-primary text-on-primary px-3 py-1 rounded-full text-xs font-bold mb-2 inline-block">CHEF'S PICK</span>
+<h3 class="font-headline text-2xl font-extrabold text-white">Hearty Pumpkin &amp; Sage Soup</h3>
+<p class="text-white/80 text-sm mt-1">Perfect for a cozy autumn evening.</p>
+</div>
+</div>
+</section>
+</main>
+<!-- Sticky Bottom Container -->
+<div class="fixed bottom-0 left-0 w-full z-50 pointer-events-none">
+<!-- Sticky Action Button -->
+<div class="max-w-5xl mx-auto px-6 pb-28 flex justify-center pointer-events-auto">
+<button class="w-full max-w-md py-4 bg-primary text-on-primary rounded-xl font-bold text-lg shadow-xl shadow-primary/30 flex items-center justify-center gap-2 hover:scale-[1.02] active:scale-95 transition-all">
+<span class="material-symbols-outlined">restaurant_menu</span>
+                Find My Meal
+            </button>
+</div>
+<!-- Bottom Navigation Bar -->
+<nav class="bg-[#fef8f5]/90 backdrop-blur-md flex justify-around items-center px-4 py-3 pb-8 rounded-t-[3rem] shadow-[0_-4px_40px_rgba(29,27,26,0.06)] pointer-events-auto">
+<a class="flex flex-col items-center justify-center bg-[#ff9f43]/20 text-[#8f4e00] rounded-full px-5 py-1.5 transition-all duration-300 ease-in-out" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">restaurant</span>
+<span class="font-label text-[11px] font-medium mt-1">Recipes</span>
+</a>
+<a class="flex flex-col items-center justify-center text-stone-500 hover:bg-stone-100 rounded-full px-5 py-1.5 transition-all duration-300 ease-in-out" href="#">
+<span class="material-symbols-outlined">history</span>
+<span class="font-label text-[11px] font-medium mt-1">History</span>
+</a>
+<a class="flex flex-col items-center justify-center text-stone-500 hover:bg-stone-100 rounded-full px-5 py-1.5 transition-all duration-300 ease-in-out" href="#">
+<span class="material-symbols-outlined">filter_list</span>
+<span class="font-label text-[11px] font-medium mt-1">Filters</span>
+</a>
+<a class="flex flex-col items-center justify-center text-stone-500 hover:bg-stone-100 rounded-full px-5 py-1.5 transition-all duration-300 ease-in-out" href="#">
+<span class="material-symbols-outlined">group</span>
+<span class="font-label text-[11px] font-medium mt-1">Family</span>
+</a>
+</nav>
+</div>
+<!-- Floating Action Button - Positioned above the sticky Find My Meal but below top content -->
+<button class="fixed right-6 bottom-44 w-14 h-14 rounded-full bg-gradient-to-br from-[#8f4e00] to-[#ff9f43] text-on-primary shadow-xl flex items-center justify-center active:scale-95 transition-all z-40">
+<span class="material-symbols-outlined text-2xl" style="font-variation-settings: 'FILL' 1;">auto_awesome</span>
+</button>
+</body></html>

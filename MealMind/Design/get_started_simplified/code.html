@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Smart Family Recipe Assistant - Empty State</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&amp;family=Be+Vietnam+Pro:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-secondary-container": "#5a6745",
+                        "on-primary": "#ffffff",
+                        "primary-fixed-dim": "#ffb77a",
+                        "on-surface": "#1d1b1a",
+                        "primary-container": "#ff9f43",
+                        "on-tertiary": "#ffffff",
+                        "tertiary-container": "#c0b59c",
+                        "secondary": "#566342",
+                        "inverse-surface": "#32302e",
+                        "on-error-container": "#93000a",
+                        "outline": "#877365",
+                        "secondary-fixed": "#dae8be",
+                        "inverse-on-surface": "#f5f0ed",
+                        "surface-container-highest": "#e7e1df",
+                        "on-tertiary-container": "#4e4733",
+                        "secondary-fixed-dim": "#becca3",
+                        "surface-variant": "#e7e1df",
+                        "inverse-primary": "#ffb77a",
+                        "on-surface-variant": "#544437",
+                        "on-primary-container": "#6d3a00",
+                        "surface-container": "#f2edea",
+                        "on-tertiary-fixed": "#211b0b",
+                        "tertiary-fixed": "#eee1c7",
+                        "surface": "#fef8f5",
+                        "surface-container-high": "#ede7e4",
+                        "tertiary": "#665e49",
+                        "primary-fixed": "#ffdcc2",
+                        "surface-tint": "#8f4e00",
+                        "outline-variant": "#dac2b1",
+                        "surface-dim": "#ded9d6",
+                        "background": "#fef8f5",
+                        "error": "#ba1a1a",
+                        "on-primary-fixed-variant": "#6d3a00",
+                        "on-tertiary-fixed-variant": "#4e4633",
+                        "error-container": "#ffdad6",
+                        "on-secondary": "#ffffff",
+                        "surface-container-lowest": "#ffffff",
+                        "on-background": "#1d1b1a",
+                        "on-error": "#ffffff",
+                        "on-primary-fixed": "#2e1500",
+                        "primary": "#8f4e00",
+                        "secondary-container": "#d7e5bb",
+                        "surface-container-low": "#f8f2f0",
+                        "tertiary-fixed-dim": "#d1c5ac",
+                        "on-secondary-fixed-variant": "#3f4b2c",
+                        "surface-bright": "#fef8f5",
+                        "on-secondary-fixed": "#141f05"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "1rem",
+                        "lg": "2rem",
+                        "xl": "3rem",
+                        "full": "9999px"
+                    },
+                    "fontFamily": {
+                        "headline": ["Plus Jakarta Sans"],
+                        "body": ["Be Vietnam Pro"],
+                        "label": ["Be Vietnam Pro"]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .glow-gradient {
+            background: linear-gradient(135deg, #8f4e00 0%, #ff9f43 100%);
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+</head>
+<body class="bg-surface font-body text-on-surface antialiased">
+<!-- TopAppBar -->
+<header class="bg-[#fef8f5]/80 dark:bg-[#1d1b1a]/80 backdrop-blur-xl docked full-width top-0 sticky z-50 flex items-center justify-between px-6 py-4 w-full">
+<div class="flex items-center gap-4">
+<button class="text-[#8f4e00] dark:text-[#ff9f43] hover:opacity-80 transition-opacity Active: scale-95 duration-200">
+<span class="material-symbols-outlined">arrow_back</span>
+</button>
+<h1 class="font-['Plus_Jakarta_Sans'] font-bold tracking-tight text-lg text-[#8f4e00] dark:text-[#ff9f43] tracking-tighter">Smart Family Recipe Assistant</h1>
+</div>
+<div class="flex items-center gap-2">
+<button class="p-2 text-[#8f4e00] dark:text-[#ff9f43] hover:opacity-80 transition-opacity">
+<span class="material-symbols-outlined">more_vert</span>
+</button>
+</div>
+</header>
+<main class="min-h-[calc(100vh-160px)] flex flex-col items-center justify-center px-6 relative overflow-hidden">
+<!-- Asymmetric Background Decorative Elements -->
+<div class="absolute top-10 -left-20 w-64 h-64 bg-secondary-container rounded-full opacity-20 blur-3xl"></div>
+<div class="absolute bottom-20 -right-20 w-80 h-80 bg-primary-fixed-dim rounded-full opacity-20 blur-3xl"></div>
+<!-- Empty State Content Canvas -->
+<div class="w-full max-w-md flex flex-col items-center text-center z-10">
+<!-- Editorial Illustration Container -->
+<div class="relative mb-12">
+<div class="w-72 h-72 rounded-full bg-surface-container-low flex items-center justify-center relative overflow-hidden">
+<img alt="Warm kitchen scene with fresh vegetables and a cooking pot" class="w-full h-full object-cover mix-blend-multiply opacity-90" data-alt="Soft editorial illustration of a bright kitchen counter with a ceramic pot, fresh rosemary, and a sliced orange in warm morning light" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCO52_7ozVxh5WvNiZDQyDtU3dJwOKEtPlCCUNZTgsfhOZInryw4L0i-iCCmc_856pZXewDUfpBF1Wbg6Ioiaz5rHpvpt5aipZG0D-ascbkYBZ0ylF-PvhHt64exdQtZ7qG9v8tsUWZNFNr7Xr6yFEhbDy3UUR3kBrqWY6zueS7kFNdum6RUikpfah_yWQGqrS_zNYv87_LGklNZ464l_1dZBeumPtoNCWFSppea6DWgdkcrIwGjzYoYy5xWY1k5ZlCEiw-v3Jv2vE"/>
+<!-- Floating Accent Overlay -->
+<div class="absolute -bottom-4 -right-4 bg-surface-container-lowest p-6 rounded-lg shadow-[0_12px_40px_rgba(29,27,26,0.06)] flex items-center gap-3">
+<div class="w-10 h-10 rounded-full bg-secondary-container flex items-center justify-center">
+<span class="material-symbols-outlined text-on-secondary-container" style="font-variation-settings: 'FILL' 1;">restaurant</span>
+</div>
+<div class="text-left">
+<div class="h-2 w-16 bg-surface-container-highest rounded-full mb-1"></div>
+<div class="h-2 w-10 bg-surface-container-highest rounded-full"></div>
+</div>
+</div>
+</div>
+</div>
+<!-- Typography & Messaging -->
+<h2 class="font-headline text-4xl font-bold tracking-tight text-on-surface mb-4 leading-tight">
+                Ready to cook?
+            </h2>
+<p class="font-body text-on-surface-variant text-lg max-w-[280px] mb-10">
+                Add ingredients to get started and we'll handle the rest.
+            </p>
+<!-- Primary Action -->
+<button class="glow-gradient text-on-primary font-headline font-bold text-lg px-12 py-5 rounded-xl shadow-[0_12px_40px_rgba(143,78,0,0.2)] hover:scale-105 active:scale-95 transition-all duration-300 flex items-center gap-3">
+<span class="material-symbols-outlined">add_circle</span>
+                Add Ingredients
+            </button>
+<button class="mt-8 font-label text-primary font-semibold hover:opacity-70 transition-opacity">
+                Browse popular recipes
+            </button>
+</div>
+</main>
+<!-- BottomNavBar -->
+<nav class="fixed bottom-0 left-0 w-full flex justify-around items-center px-8 pb-6 pt-2 bg-[#fef8f5]/80 dark:bg-[#1d1b1a]/80 backdrop-blur-xl z-50 rounded-t-[3rem] shadow-[0_-12px_40px_rgba(29,27,26,0.06)]">
+<!-- Home Tab (Inactive for this view) -->
+<a class="flex flex-col items-center justify-center text-[#1d1b1a]/60 dark:text-[#fef8f5]/60 p-3 hover:bg-[#f8f2f0] dark:hover:bg-[#1d1b1a] rounded-full transition-colors Active: scale-90 duration-300 ease-out" href="#">
+<span class="material-symbols-outlined">home</span>
+<span class="font-['Be_Vietnam_Pro'] text-[11px] font-medium mt-1">Home</span>
+</a>
+<!-- Favorites Tab (Inactive) -->
+<a class="flex flex-col items-center justify-center text-[#1d1b1a]/60 dark:text-[#fef8f5]/60 p-3 hover:bg-[#f8f2f0] dark:hover:bg-[#1d1b1a] rounded-full transition-colors Active: scale-90 duration-300 ease-out" href="#">
+<span class="material-symbols-outlined">favorite</span>
+<span class="font-['Be_Vietnam_Pro'] text-[11px] font-medium mt-1">Favorites</span>
+</a>
+<!-- Profile Tab (Inactive) -->
+<a class="flex flex-col items-center justify-center text-[#1d1b1a]/60 dark:text-[#fef8f5]/60 p-3 hover:bg-[#f8f2f0] dark:hover:bg-[#1d1b1a] rounded-full transition-colors Active: scale-90 duration-300 ease-out" href="#">
+<span class="material-symbols-outlined">person</span>
+<span class="font-['Be_Vietnam_Pro'] text-[11px] font-medium mt-1">Profile</span>
+</a>
+</nav>
+<!-- Floating Helper Bubble (The Curator Voice) -->
+</body></html>
