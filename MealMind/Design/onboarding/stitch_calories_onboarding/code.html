@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "primary-container": "#8d4e03",
+                        "on-secondary": "#ffffff",
+                        "inverse-on-surface": "#f4f0eb",
+                        "on-surface-variant": "#534438",
+                        "on-primary": "#ffffff",
+                        "surface-dim": "#ddd9d5",
+                        "tertiary-fixed-dim": "#ffb689",
+                        "surface-container-low": "#f7f3ee",
+                        "on-tertiary-fixed": "#311300",
+                        "on-primary-container": "#ffcea7",
+                        "surface": "#fdf9f4",
+                        "on-tertiary-fixed-variant": "#743500",
+                        "surface-container-lowest": "#ffffff",
+                        "surface-container-high": "#ebe8e3",
+                        "surface-container": "#f1ede8",
+                        "on-secondary-container": "#5a6749",
+                        "on-secondary-fixed-variant": "#3e4b2f",
+                        "on-secondary-fixed": "#141f07",
+                        "on-surface": "#1c1c19",
+                        "surface-tint": "#8e4f04",
+                        "primary": "#6c3a00",
+                        "primary-fixed": "#ffdcc1",
+                        "on-tertiary": "#ffffff",
+                        "on-error": "#ffffff",
+                        "on-primary-fixed": "#2e1500",
+                        "tertiary-fixed": "#ffdbc8",
+                        "inverse-primary": "#ffb779",
+                        "outline": "#857466",
+                        "primary-fixed-dim": "#ffb779",
+                        "secondary": "#556345",
+                        "tertiary": "#733500",
+                        "surface-container-highest": "#e6e2dd",
+                        "outline-variant": "#d8c3b3",
+                        "on-primary-fixed-variant": "#6c3a00",
+                        "surface-variant": "#e6e2dd",
+                        "error": "#ba1a1a",
+                        "tertiary-container": "#974700",
+                        "surface-bright": "#fdf9f4",
+                        "secondary-container": "#d6e5bf",
+                        "secondary-fixed-dim": "#bdcca7",
+                        "error-container": "#ffdad6",
+                        "on-error-container": "#93000a",
+                        "on-background": "#1c1c19",
+                        "inverse-surface": "#31302d",
+                        "on-tertiary-container": "#ffcdb0",
+                        "secondary-fixed": "#d9e8c2",
+                        "background": "#fdf9f4"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "1rem",
+                        "lg": "2rem",
+                        "xl": "3rem",
+                        "full": "9999px"
+                    },
+                    "fontFamily": {
+                        "headline": ["Plus Jakarta Sans"],
+                        "body": ["Plus Jakarta Sans"],
+                        "label": ["Plus Jakarta Sans"]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        body { font-family: 'Plus Jakarta Sans', sans-serif; }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .signature-gradient {
+            background: linear-gradient(135deg, #6c3a00 0%, #8d4e03 100%);
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-surface text-on-surface min-h-screen flex flex-col">
+<!-- TopAppBar -->
+<header class="fixed top-0 w-full z-50 bg-[#fdf9f4]/80 backdrop-blur-md flex items-center justify-between px-6 py-4 w-full">
+<div class="flex items-center gap-4">
+<button class="text-[#6c3a00] hover:opacity-80 transition-opacity active:scale-95 duration-200">
+<span class="material-symbols-outlined" data-icon="arrow_back">arrow_back</span>
+</button>
+</div>
+<div class="flex items-center">
+<button class="text-[#534438] font-['Plus_Jakarta_Sans'] font-bold text-lg tracking-tight hover:opacity-80 transition-opacity active:scale-95 duration-200">Skip</button>
+</div>
+</header>
+<main class="flex-1 mt-20 px-6 pb-32 max-w-2xl mx-auto w-full">
+<!-- Progress Bar -->
+<div class="mb-10">
+<div class="flex justify-between items-center mb-2">
+<span class="text-xs font-bold text-on-surface-variant tracking-widest uppercase">Step 4 of 5</span>
+</div>
+<div class="h-1.5 w-full bg-surface-container rounded-full overflow-hidden">
+<div class="h-full bg-primary-container rounded-full" style="width: 80%;"></div>
+</div>
+</div>
+<!-- Hero Question -->
+<section class="mb-8">
+<h1 class="text-3xl md:text-4xl font-extrabold text-on-background tracking-tight leading-tight mb-4">
+                Do you track calories or macros?
+            </h1>
+<p class="text-on-surface-variant text-lg">
+                Tell us how you approach your daily intake so we can tailor your meal suggestions.
+            </p>
+</section>
+<!-- Selection Options -->
+<div class="space-y-4 mb-12">
+<!-- Option 1: Strictly -->
+<label class="group relative flex items-center p-6 bg-surface-container rounded-xl cursor-pointer transition-all duration-200 border-2 border-transparent hover:bg-surface-container-high has-[:checked]:bg-primary-fixed-dim/10 has-[:checked]:border-primary">
+<input class="hidden peer" name="tracking_pref" type="radio"/>
+<div class="flex-1">
+<h3 class="text-lg font-bold text-on-surface leading-none mb-1">Yes, strictly</h3>
+<p class="text-on-surface-variant text-sm">I track every ingredient</p>
+</div>
+<div class="w-6 h-6 rounded-full border-2 border-outline group-hover:border-primary peer-checked:border-primary flex items-center justify-center transition-colors">
+<div class="w-3 h-3 rounded-full bg-primary scale-0 peer-checked:scale-100 transition-transform duration-200"></div>
+</div>
+</label>
+<!-- Option 2: Sometimes -->
+<label class="group relative flex items-center p-6 bg-surface-container rounded-xl cursor-pointer transition-all duration-200 border-2 border-transparent hover:bg-surface-container-high has-[:checked]:bg-primary-fixed-dim/10 has-[:checked]:border-primary">
+<input checked="" class="hidden peer" name="tracking_pref" type="radio"/>
+<div class="flex-1">
+<h3 class="text-lg font-bold text-on-surface leading-none mb-1">Sometimes</h3>
+<p class="text-on-surface-variant text-sm">I keep a rough idea of my intake</p>
+</div>
+<div class="w-6 h-6 rounded-full border-2 border-outline group-hover:border-primary peer-checked:border-primary flex items-center justify-center transition-colors">
+<div class="w-3 h-3 rounded-full bg-primary scale-0 peer-checked:scale-100 transition-transform duration-200"></div>
+</div>
+</label>
+<!-- Option 3: No -->
+<label class="group relative flex items-center p-6 bg-surface-container rounded-xl cursor-pointer transition-all duration-200 border-2 border-transparent hover:bg-surface-container-high has-[:checked]:bg-primary-fixed-dim/10 has-[:checked]:border-primary">
+<input class="hidden peer" name="tracking_pref" type="radio"/>
+<div class="flex-1">
+<h3 class="text-lg font-bold text-on-surface leading-none mb-1">No</h3>
+<p class="text-on-surface-variant text-sm">I prefer to focus on the flavor</p>
+</div>
+<div class="w-6 h-6 rounded-full border-2 border-outline group-hover:border-primary peer-checked:border-primary flex items-center justify-center transition-colors">
+<div class="w-3 h-3 rounded-full bg-primary scale-0 peer-checked:scale-100 transition-transform duration-200"></div>
+</div>
+</label>
+</div>
+<!-- Chef's Note Section -->
+<div class="bg-secondary-container/40 rounded-lg p-8 relative overflow-hidden flex flex-col md:flex-row gap-6 items-center">
+<div class="w-24 h-24 md:w-32 md:h-32 flex-shrink-0 relative">
+<img alt="Portrait of Chef Julian Vance" class="w-full h-full object-cover rounded-full shadow-lg" data-alt="Close-up portrait of a professional chef in a white coat smiling warmly, blurred kitchen background with soft warm lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDsx4r1-GZmGGmGDLE4biV4zOsrENoEAP_LWUYimrSEzcepUccCGQtPreVAOYw2i9cQJLiVYAxWw48WQEdagrykc1y_uSIIv-wNqtg9uORbytvw7_r71KQvewH6Sroz6TpojrcmxLHfT2qAnwfd31bX25WmrhZeunhXdLe5xzFGkdwmziuMulb-rmX3zwtNW9n6s94aLG8tBiaSIdx8mGO1Ig6eysoe6YIvHJkh1qehFiMAcqVp37LE9rV1tEaRD_q4vdoMW64yFr53"/>
+</div>
+<div class="flex-1">
+<div class="flex items-center gap-2 mb-2">
+<span class="material-symbols-outlined text-secondary" data-icon="restaurant">restaurant</span>
+<span class="text-secondary font-bold text-sm tracking-widest uppercase">CHEF'S NOTE</span>
+</div>
+<blockquote class="text-on-secondary-container italic text-lg leading-relaxed mb-4">
+                    "Balance is key to a sustainable kitchen. Knowing your numbers helps you stay on track, but remember that food is fuel for the soul as much as the body."
+                </blockquote>
+<cite class="text-on-secondary-container font-bold text-sm not-italic">— Chef Julian Vance</cite>
+</div>
+<!-- Decorative Element -->
+<div class="absolute -right-8 -bottom-8 opacity-10">
+<span class="material-symbols-outlined text-8xl" data-icon="format_quote">format_quote</span>
+</div>
+</div>
+</main>
+<!-- Bottom Navigation Shell -->
+<footer class="fixed bottom-0 left-0 w-full bg-[#fdf9f4]/80 backdrop-blur-md px-8 pb-8 pt-4 flex justify-between items-center z-50">
+<button class="px-8 py-4 text-[#534438] font-bold hover:bg-[#f1ede8] rounded-full transition-all duration-200 active:scale-95">
+            Skip
+        </button>
+<button class="px-10 py-4 signature-gradient text-on-primary rounded-full font-bold shadow-[0_12_32px_rgba(46,21,0,0.06)] hover:opacity-90 transition-all duration-200 active:scale-95">
+            Continue
+        </button>
+</footer>
+</body></html>

@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&amp;family=Plus_Jakarta_Sans:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "surface-variant": "#e6e2dc",
+                        "on-primary-container": "#ffc29f",
+                        "primary-container": "#8b4513",
+                        "tertiary-fixed-dim": "#ffb4a5",
+                        "surface": "#fdf9f3",
+                        "error": "#ba1a1a",
+                        "on-primary-fixed": "#321200",
+                        "surface-container-low": "#f7f3ed",
+                        "on-primary": "#ffffff",
+                        "outline-variant": "#dac2b6",
+                        "on-tertiary-container": "#ffc0b3",
+                        "surface-dim": "#dddad4",
+                        "surface-container-high": "#ebe8e2",
+                        "on-tertiary-fixed-variant": "#802918",
+                        "on-secondary-fixed-variant": "#3c4b35",
+                        "secondary-fixed": "#d7e8ca",
+                        "inverse-surface": "#31302d",
+                        "surface-container-highest": "#e6e2dc",
+                        "secondary": "#54634b",
+                        "on-surface-variant": "#54433a",
+                        "secondary-container": "#d4e5c7",
+                        "outline": "#877369",
+                        "background": "#fdf9f3",
+                        "error-container": "#ffdad6",
+                        "tertiary": "#782313",
+                        "primary-fixed-dim": "#ffb68c",
+                        "surface-bright": "#fdf9f3",
+                        "on-error-container": "#93000a",
+                        "tertiary-container": "#973a27",
+                        "on-background": "#1c1c18",
+                        "on-secondary-fixed": "#121f0c",
+                        "on-secondary": "#ffffff",
+                        "primary-fixed": "#ffdbc9",
+                        "secondary-fixed-dim": "#bbccaf",
+                        "inverse-primary": "#ffb68c",
+                        "primary": "#6c2f00",
+                        "on-surface": "#1c1c18",
+                        "on-primary-fixed-variant": "#753401",
+                        "on-error": "#ffffff",
+                        "inverse-on-surface": "#f4f0ea",
+                        "on-secondary-container": "#58674f",
+                        "surface-container": "#f1ede7",
+                        "on-tertiary": "#ffffff",
+                        "on-tertiary-fixed": "#3e0500",
+                        "surface-container-lowest": "#ffffff",
+                        "surface-tint": "#934b19",
+                        "tertiary-fixed": "#ffdad3"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "1rem",
+                        "lg": "2rem",
+                        "xl": "3rem",
+                        "full": "9999px"
+                    },
+                    "fontFamily": {
+                        "headline": ["Manrope"],
+                        "body": ["Plus Jakarta Sans"],
+                        "label": ["Plus Jakarta Sans"]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .tonal-transition {
+            transition: background-color 0.3s ease;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-surface font-body text-on-surface antialiased min-h-screen flex flex-col">
+<!-- Top AppBar (JSON Component Mapping) -->
+<header class="bg-[#fdf9f3] dark:bg-stone-950 flex items-center justify-between px-6 py-4 w-full top-0 z-50">
+<div class="flex items-center gap-4">
+<span class="material-symbols-outlined text-[#6c2f00] dark:text-[#d4e5c7] active:scale-90 transition-transform cursor-pointer">arrow_back</span>
+<h1 class="font-['Manrope'] font-bold text-lg tracking-tight text-[#6c2f00] dark:text-[#d4e5c7]">The Artisanal Archive</h1>
+</div>
+<div class="hidden md:flex gap-6">
+<!-- Navigation shell suppression for onboarding as per rule -->
+</div>
+</header>
+<!-- Progress Indicator -->
+<nav class="px-6 pt-2 pb-6">
+<div class="max-w-md mx-auto">
+<div class="flex justify-between items-end mb-2">
+<span class="font-label text-[10px] tracking-widest uppercase text-secondary font-semibold">Step 1 of 20</span>
+<span class="font-label text-[10px] tracking-widest uppercase text-outline">5%</span>
+</div>
+<div class="h-1 w-full bg-surface-container-highest rounded-full overflow-hidden">
+<div class="h-full bg-primary w-[5%] rounded-full"></div>
+</div>
+</div>
+</nav>
+<!-- Main Content Canvas -->
+<main class="flex-grow px-6 pb-32">
+<div class="max-w-md mx-auto space-y-10 mt-8">
+<!-- Headline Section -->
+<div class="text-center space-y-4">
+<h2 class="font-headline text-3xl font-extrabold tracking-tight text-on-surface px-4">What is your main goal?</h2>
+<p class="font-body text-on-surface-variant leading-relaxed px-6">Choose the option that best describes what you want to achieve.</p>
+</div>
+<!-- Options Grid -->
+<div class="grid grid-cols-1 gap-4">
+<!-- Option: Eat Healthier (Active/Selected State Example) -->
+<button class="group relative flex items-center p-6 bg-gradient-to-br from-[#6c2f00] to-[#8b4513] text-white rounded-xl shadow-lg transform transition-all duration-300 active:scale-95">
+<div class="flex-grow text-left">
+<span class="font-headline font-bold text-lg">Eat healthier</span>
+</div>
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+</button>
+<!-- Option: Save time -->
+<button class="flex items-center p-6 bg-surface-container-low text-on-surface rounded-xl hover:bg-surface-container-highest transition-all duration-300 active:scale-95 text-left border border-transparent">
+<div class="flex-grow">
+<span class="font-headline font-semibold text-lg">Save time</span>
+</div>
+<span class="material-symbols-outlined text-outline">timer</span>
+</button>
+<!-- Option: Lose weight -->
+<button class="flex items-center p-6 bg-surface-container-low text-on-surface rounded-xl hover:bg-surface-container-highest transition-all duration-300 active:scale-95 text-left border border-transparent">
+<div class="flex-grow">
+<span class="font-headline font-semibold text-lg">Lose weight</span>
+</div>
+<span class="material-symbols-outlined text-outline">monitor_weight</span>
+</button>
+<!-- Option: Gain muscle -->
+<button class="flex items-center p-6 bg-surface-container-low text-on-surface rounded-xl hover:bg-surface-container-highest transition-all duration-300 active:scale-95 text-left border border-transparent">
+<div class="flex-grow">
+<span class="font-headline font-semibold text-lg">Gain muscle</span>
+</div>
+<span class="material-symbols-outlined text-outline">fitness_center</span>
+</button>
+<!-- Option: Maintain weight -->
+<button class="flex items-center p-6 bg-surface-container-low text-on-surface rounded-xl hover:bg-surface-container-highest transition-all duration-300 active:scale-95 text-left border border-transparent">
+<div class="flex-grow">
+<span class="font-headline font-semibold text-lg">Maintain weight</span>
+</div>
+<span class="material-symbols-outlined text-outline">balance</span>
+</button>
+<!-- Option: Reduce food waste -->
+<button class="flex items-center p-6 bg-surface-container-low text-on-surface rounded-xl hover:bg-surface-container-highest transition-all duration-300 active:scale-95 text-left border border-transparent">
+<div class="flex-grow">
+<span class="font-headline font-semibold text-lg">Reduce food waste</span>
+</div>
+<span class="material-symbols-outlined text-outline">recycling</span>
+</button>
+<!-- Option: Eat on a budget -->
+<button class="flex items-center p-6 bg-surface-container-low text-on-surface rounded-xl hover:bg-surface-container-highest transition-all duration-300 active:scale-95 text-left border border-transparent">
+<div class="flex-grow">
+<span class="font-headline font-semibold text-lg">Eat on a budget</span>
+</div>
+<span class="material-symbols-outlined text-outline">payments</span>
+</button>
+</div>
+</div>
+</main>
+<!-- Bottom Footer Section (Asymmetric Editorial Style) -->
+<footer class="fixed bottom-0 left-0 w-full p-8 bg-[#fdf9f3]/80 backdrop-blur-xl z-50">
+<div class="max-w-md mx-auto flex flex-col items-center gap-6">
+<!-- Decorative Branding Element -->
+<div class="w-12 h-1 bg-primary-container/20 rounded-full"></div>
+<button class="w-full py-5 px-8 bg-gradient-to-br from-[#6c2f00] to-[#8b4513] text-white rounded-full font-headline font-bold text-lg shadow-xl hover:opacity-95 active:scale-[0.98] transition-all flex items-center justify-center gap-2">
+                Continue
+                <span class="material-symbols-outlined">arrow_forward</span>
+</button>
+<!-- Secondary Context Action -->
+<button class="font-label text-[10px] tracking-widest uppercase text-outline hover:text-primary transition-colors">
+                I'll set my goals later
+            </button>
+</div>
+</footer>
+<!-- Decorative Aesthetic Background Elements (Asymmetry Rule) -->
+<div class="fixed top-32 -left-20 w-64 h-64 bg-secondary-container/20 rounded-full blur-[100px] -z-10"></div>
+<div class="fixed bottom-40 -right-20 w-80 h-80 bg-primary-container/10 rounded-full blur-[120px] -z-10"></div>
+</body></html>

@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Kitchen Setup Onboarding</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "tertiary-container": "#974700",
+                    "on-secondary-container": "#5a6749",
+                    "outline": "#857466",
+                    "on-tertiary": "#ffffff",
+                    "error-container": "#ffdad6",
+                    "on-background": "#1c1c19",
+                    "tertiary": "#733500",
+                    "on-primary-container": "#ffcea7",
+                    "surface-variant": "#e6e2dd",
+                    "primary": "#6c3a00",
+                    "on-tertiary-fixed": "#311300",
+                    "on-tertiary-container": "#ffcdb0",
+                    "surface-container": "#f1ede8",
+                    "secondary": "#556345",
+                    "primary-fixed-dim": "#ffb779",
+                    "on-tertiary-fixed-variant": "#743500",
+                    "on-primary": "#ffffff",
+                    "surface": "#fdf9f4",
+                    "secondary-container": "#d6e5bf",
+                    "on-surface-variant": "#534438",
+                    "surface-container-high": "#ebe8e3",
+                    "primary-container": "#8d4e03",
+                    "on-surface": "#1c1c19",
+                    "on-secondary-fixed-variant": "#3e4b2f",
+                    "on-error": "#ffffff",
+                    "inverse-on-surface": "#f4f0eb",
+                    "inverse-surface": "#31302d",
+                    "surface-tint": "#8e4f04",
+                    "on-secondary-fixed": "#141f07",
+                    "surface-dim": "#ddd9d5",
+                    "secondary-fixed": "#d9e8c2",
+                    "on-primary-fixed": "#2e1500",
+                    "surface-container-lowest": "#ffffff",
+                    "inverse-primary": "#ffb779",
+                    "tertiary-fixed-dim": "#ffb689",
+                    "on-primary-fixed-variant": "#6c3a00",
+                    "surface-container-low": "#f7f3ee",
+                    "surface-container-highest": "#e6e2dd",
+                    "surface-bright": "#fdf9f4",
+                    "secondary-fixed-dim": "#bdcca7",
+                    "primary-fixed": "#ffdcc1",
+                    "on-secondary": "#ffffff",
+                    "on-error-container": "#93000a",
+                    "error": "#ba1a1a",
+                    "background": "#fdf9f4",
+                    "tertiary-fixed": "#ffdbc8",
+                    "outline-variant": "#d8c3b3"
+            },
+            "borderRadius": {
+                    "DEFAULT": "1rem",
+                    "lg": "2rem",
+                    "xl": "3rem",
+                    "full": "9999px"
+            },
+            "fontFamily": {
+                    "headline": ["Plus Jakarta Sans"],
+                    "body": ["Plus Jakarta Sans"],
+                    "label": ["Plus Jakarta Sans"]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        body { font-family: 'Plus Jakarta Sans', sans-serif; }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .asymmetric-grid-item:nth-child(even) { margin-top: 1.5rem; }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-surface text-on-surface selection:bg-primary-fixed selection:text-on-primary-fixed">
+<!-- TopAppBar -->
+<header class="bg-stone-50/80 dark:bg-stone-900/80 backdrop-blur-xl fixed top-0 w-full z-50 no-border bg-stone-100/50 dark:bg-stone-800/50">
+<div class="flex justify-between items-center px-6 py-4 w-full max-w-7xl mx-auto">
+<div class="flex items-center gap-4">
+<span class="material-symbols-outlined text-orange-900 dark:text-orange-200 active:scale-95 transition-transform duration-150 ease-in-out cursor-pointer" data-icon="arrow_back">arrow_back</span>
+<h1 class="font-plus-jakarta font-bold tracking-tight text-lg text-orange-900 dark:text-orange-200">Kitchen Setup</h1>
+</div>
+<div class="flex items-center gap-2">
+<span class="text-xs font-bold text-orange-900/40 tracking-widest uppercase">Step 5/6</span>
+</div>
+</div>
+</header>
+<main class="pt-24 pb-40 px-6 max-w-2xl mx-auto">
+<!-- Progress Indicator -->
+<div class="w-full bg-surface-container-high h-1.5 rounded-full mb-10 overflow-hidden">
+<div class="bg-primary h-full w-[83.33%] rounded-full"></div>
+</div>
+<!-- Hero Text -->
+<section class="mb-10">
+<h2 class="text-4xl md:text-5xl font-headline font-bold text-on-background tracking-tight mb-4 leading-tight">
+                What kitchen equipment do you have?
+            </h2>
+<p class="text-on-surface-variant text-lg leading-relaxed max-w-md">
+                Help us understand your setup so we can recommend recipes you can actually make.
+            </p>
+</section>
+<!-- Multi-select Grid -->
+<div class="grid grid-cols-2 gap-4 mb-12">
+<!-- Stove -->
+<button class="flex flex-col items-start p-6 rounded-xl bg-surface-container hover:bg-orange-100/50 transition-colors border-2 border-transparent focus:border-primary group text-left">
+<div class="w-12 h-12 rounded-full bg-surface-container-highest flex items-center justify-center mb-4 group-focus:bg-primary-fixed">
+<span class="material-symbols-outlined text-primary" data-icon="cooking">cooking</span>
+</div>
+<span class="font-bold text-on-surface">Stove</span>
+</button>
+<!-- Oven -->
+<button class="flex flex-col items-start p-6 rounded-xl bg-surface-container hover:bg-orange-100/50 transition-colors border-2 border-transparent focus:border-primary group text-left">
+<div class="w-12 h-12 rounded-full bg-surface-container-highest flex items-center justify-center mb-4 group-focus:bg-primary-fixed">
+<span class="material-symbols-outlined text-primary" data-icon="oven_gen">oven_gen</span>
+</div>
+<span class="font-bold text-on-surface">Oven</span>
+</button>
+<!-- Microwave -->
+<button class="flex flex-col items-start p-6 rounded-xl bg-surface-container hover:bg-orange-100/50 transition-colors border-2 border-transparent focus:border-primary group text-left">
+<div class="w-12 h-12 rounded-full bg-surface-container-highest flex items-center justify-center mb-4 group-focus:bg-primary-fixed">
+<span class="material-symbols-outlined text-primary" data-icon="microwave">microwave</span>
+</div>
+<span class="font-bold text-on-surface">Microwave</span>
+</button>
+<!-- Air fryer -->
+<button class="flex flex-col items-start p-6 rounded-xl bg-surface-container hover:bg-orange-100/50 transition-colors border-2 border-transparent focus:border-primary group text-left">
+<div class="w-12 h-12 rounded-full bg-surface-container-highest flex items-center justify-center mb-4 group-focus:bg-primary-fixed">
+<span class="material-symbols-outlined text-primary" data-icon="mode_fan">mode_fan</span>
+</div>
+<span class="font-bold text-on-surface">Air fryer</span>
+</button>
+<!-- Blender -->
+<button class="flex flex-col items-start p-6 rounded-xl bg-surface-container hover:bg-orange-100/50 transition-colors border-2 border-transparent focus:border-primary group text-left">
+<div class="w-12 h-12 rounded-full bg-surface-container-highest flex items-center justify-center mb-4 group-focus:bg-primary-fixed">
+<span class="material-symbols-outlined text-primary" data-icon="blender">blender</span>
+</div>
+<span class="font-bold text-on-surface">Blender</span>
+</button>
+<!-- Rice cooker -->
+<button class="flex flex-col items-start p-6 rounded-xl bg-surface-container hover:bg-orange-100/50 transition-colors border-2 border-transparent focus:border-primary group text-left">
+<div class="w-12 h-12 rounded-full bg-surface-container-highest flex items-center justify-center mb-4 group-focus:bg-primary-fixed">
+<span class="material-symbols-outlined text-primary" data-icon="rice_bowl">rice_bowl</span>
+</div>
+<span class="font-bold text-on-surface">Rice cooker</span>
+</button>
+<!-- Instant pot -->
+<button class="flex flex-col items-start p-6 rounded-xl bg-surface-container hover:bg-orange-100/50 transition-colors border-2 border-transparent focus:border-primary group text-left">
+<div class="w-12 h-12 rounded-full bg-surface-container-highest flex items-center justify-center mb-4 group-focus:bg-primary-fixed">
+<span class="material-symbols-outlined text-primary" data-icon="pressure_cooker">cooking</span>
+</div>
+<span class="font-bold text-on-surface">Instant pot</span>
+</button>
+<!-- Grill -->
+<button class="flex flex-col items-start p-6 rounded-xl bg-surface-container hover:bg-orange-100/50 transition-colors border-2 border-transparent focus:border-primary group text-left">
+<div class="w-12 h-12 rounded-full bg-surface-container-highest flex items-center justify-center mb-4 group-focus:bg-primary-fixed">
+<span class="material-symbols-outlined text-primary" data-icon="outdoor_grill">outdoor_grill</span>
+</div>
+<span class="font-bold text-on-surface">Grill</span>
+</button>
+</div>
+<!-- None option as a wide button -->
+<button class="w-full flex items-center justify-between p-6 rounded-xl bg-surface-container-low border-2 border-transparent focus:border-primary transition-colors group mb-12">
+<span class="font-bold text-on-surface">I don't have any of these</span>
+<span class="material-symbols-outlined text-stone-400" data-icon="block">block</span>
+</button>
+<!-- Chef's Note Section -->
+<section class="bg-secondary-container/30 p-8 rounded-lg relative overflow-hidden mb-12">
+<div class="flex items-start gap-6 relative z-10">
+<img alt="Chef headshot" class="w-16 h-16 rounded-full object-cover border-2 border-on-secondary-container" data-alt="Close-up portrait of a professional chef in a white uniform smiling warmly with soft kitchen background lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB901UyDf0mR3NLINjrwz71X1gcaDgx2VOS-nizUsAaQoUQ8OCg7DKTEbb5vkp6KnEj6sLrMd4Cxl49S3rbxJX_1LMihkmvpItN8wjKD6Sm28t7mDyw8ZAT1RoPXgAvDJu3GK5Y9_6JhDOJOrftHJcUAxCzeGCFykQQmWR-27-DdJggirVUxvQQUDkJOT0i6kQr-7ENoKugvFOuj6dKvkEyptUSCi6E46WbbMygubgevmFzIo7vFhmIUxOyOUE12mlq9mBWsquNgHN-"/>
+<div class="flex-1">
+<h4 class="font-headline font-bold text-on-secondary-container text-sm uppercase tracking-widest mb-2">Chef's Note</h4>
+<p class="italic text-on-secondary-container font-medium leading-relaxed">
+                        "A great cook isn't defined by their tools, but knowing what's in your arsenal helps us pick the perfect battle."
+                    </p>
+</div>
+</div>
+<!-- Decorative background element -->
+<div class="absolute -bottom-8 -right-8 w-32 h-32 bg-secondary-container/20 rounded-full blur-2xl"></div>
+</section>
+</main>
+<!-- BottomNavBar -->
+<footer class="fixed bottom-0 left-0 w-full flex justify-between items-center px-10 py-6 bg-stone-50 dark:bg-stone-900 rounded-t-[3rem] z-50 shadow-[0_-12px_32px_rgba(46,21,0,0.06)]">
+<!-- Skip Button -->
+<button class="flex flex-col items-center justify-center text-stone-500 dark:text-stone-400 px-8 py-3 hover:opacity-80 transition-opacity active:scale-98">
+<span class="material-symbols-outlined mb-1" data-icon="close">close</span>
+<span class="font-plus-jakarta font-semibold text-xs uppercase tracking-widest">Skip</span>
+</button>
+<!-- Continue Button (Active State) -->
+<button class="flex flex-col items-center justify-center bg-orange-100 dark:bg-orange-900/40 text-orange-900 dark:text-orange-100 rounded-full px-8 py-3 hover:opacity-80 transition-opacity active:scale-98">
+<span class="material-symbols-outlined mb-1" data-icon="arrow_forward">arrow_forward</span>
+<span class="font-plus-jakarta font-semibold text-xs uppercase tracking-widest">Continue</span>
+</button>
+</footer>
+</body></html>

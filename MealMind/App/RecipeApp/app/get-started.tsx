@@ -29,6 +29,17 @@ function defaultProfile(): StoredProfile {
     dislikes: [],
     vegetarianFocus: false,
     pescetarianFriendly: false,
+    wellnessGoal: 'unsure',
+    dietaryPreference: 'none',
+    cuisines: [],
+    allergies: [],
+    avoidFoods: [],
+    cookingExperience: 'home_cook',
+    kitchenEquipment: [],
+    cookingSchedule: 'flexible',
+    flavorProfile: [],
+    spicyLevel: 'medium',
+    calorieFocus: 'no_preference',
   };
 }
 

@@ -3,9 +3,9 @@ import { useEffect, useState } from 'react';
 import { ActivityIndicator, StyleSheet, View } from 'react-native';
 
 import { MealMindColors } from '@/constants/mealmind-colors';
-import { getGetStartedSeen, getOnboardingComplete } from '@/lib/profile-storage';
+import { getGetStartedSeen, getIntroSeen, getOnboardingComplete } from '@/lib/profile-storage';
 
-type BootTarget = 'get-started' | 'onboarding' | 'tabs' | null;
+type BootTarget = 'intro' | 'get-started' | 'onboarding' | 'tabs' | null;
 
 /**
  * Entry: get-started (step 14) → onboarding → tabs.
@@ -15,7 +15,12 @@ export default function Index() {
   const [target, setTarget] = useState<BootTarget>(null);
 
   useEffect(() => {
-    void Promise.all([getGetStartedSeen(), getOnboardingComplete()]).then(([started, onboardingDone]) => {
+    void Promise.all([getIntroSeen(), getGetStartedSeen(), getOnboardingComplete()]).then(
+      ([introSeen, started, onboardingDone]) => {
+        if (!introSeen) {
+          setTarget('intro');
+          return;
+        }
       if (onboardingDone) {
         setTarget('tabs');
         return;
@@ -25,7 +30,8 @@ export default function Index() {
       } else {
         setTarget('onboarding');
       }
-    });
+      },
+    );
   }, []);
 
   if (target === null) {
@@ -38,6 +44,10 @@ export default function Index() {
 
   if (target === 'get-started') {
     return <Redirect href="/get-started" />;
+  }
+
+  if (target === 'intro') {
+    return <Redirect href="/intro" />;
   }
 
   if (target === 'onboarding') {

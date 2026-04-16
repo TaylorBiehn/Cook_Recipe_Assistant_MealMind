@@ -52,6 +52,7 @@ export default function RootLayout() {
       <ThemeProvider value={colorScheme === 'dark' ? MealMindDarkNavigationTheme : MealMindNavigationTheme}>
         <Stack>
           <Stack.Screen name="index" options={{ headerShown: false }} />
+          <Stack.Screen name="intro" options={{ headerShown: false, presentation: 'card' }} />
           <Stack.Screen name="get-started" options={{ headerShown: false, presentation: 'card' }} />
           <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
           <Stack.Screen name="onboarding" options={{ headerShown: false, presentation: 'card' }} />
