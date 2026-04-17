@@ -22,6 +22,7 @@ import { MealMindRadii, MealMindShadow, MealMindSpace } from '@/constants/mealmi
 import { MealMindFonts, headlineTracking } from '@/constants/mealmind-typography';
 import { showErrorToast } from '@/lib/mealmind-toast';
 import { pickScanImage } from '@/lib/pick-scan-image';
+import { setPendingRecipeSearch } from '@/lib/recipe-generation-session';
 import { takePendingScanIngredients } from '@/lib/scan-session';
 
 /** ~Tailwind `max-w-2xl` from home mock. */
@@ -146,6 +147,22 @@ export default function HomeScreen() {
   };
 
   const fabBottom = Math.max(tabBarHeight, 52) + MealMindSpace.md;
+
+  const onFindMyMeal = () => {
+    const ingredients = ingredientsInput
+      .split(',')
+      .map((s) => s.trim())
+      .filter(Boolean);
+    const mealTypeLabel = MEAL_TYPE_CHIPS.find((c) => c.id === mealTypeId)?.label ?? '';
+    const cookingTimeLabel = TIME_CHIPS.find((c) => c.id === timeId)?.label ?? '';
+    const cookingStyleLabel = COOKING_STYLE_CHIPS.find((c) => c.id === cookingStyleId)?.label ?? '';
+    void setPendingRecipeSearch({
+      ingredients,
+      mealTypeLabel,
+      cookingTimeLabel,
+      cookingStyleLabel,
+    }).then(() => router.push('/loading'));
+  };
 
   return (
     <MealMindScreen scroll={false} contentBottomInset={0} showFooter={false}>
@@ -294,7 +311,7 @@ export default function HomeScreen() {
               label="Find My Meal"
               trailing={<MaterialIcons name="restaurant-menu" size={22} color={MealMindColors.onPrimary} />}
               style={styles.fabButton}
-              onPress={() => router.push('/loading')}
+              onPress={onFindMyMeal}
             />
           </View>
         </View>

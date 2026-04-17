@@ -21,7 +21,8 @@ import { GlowButton } from '@/components/mealmind';
 import { MealMindColors } from '@/constants/mealmind-colors';
 import { MealMindRadii, MealMindShadow, MealMindSpace } from '@/constants/mealmind-layout';
 import { MealMindFonts, headlineTracking } from '@/constants/mealmind-typography';
-import { detectIngredientsFromImage, isGeminiConfigured } from '@/lib/scan-detect';
+import { enrichScanItemsWithThumbnails, resolveIngredientThumbnail } from '@/lib/ingredient-thumbnails';
+import { detectIngredientsFromImage, isVisionScanConfigured } from '@/lib/scan-detect';
 import { showErrorToast } from '@/lib/mealmind-toast';
 import { cloneDefaultScanIngredients, type ScanIngredientItem } from '@/lib/scan-mock-ingredients';
 import { setPendingScanIngredients } from '@/lib/scan-session';
@@ -68,6 +69,11 @@ export default function ScanReviewScreen() {
           const found = await detectIngredientsFromImage(imageUri);
           if (!cancelled) {
             setItems(found);
+            void enrichScanItemsWithThumbnails(found).then((enriched) => {
+              if (!cancelled) {
+                setItems(enriched);
+              }
+            });
           }
         } catch (e) {
           if (!cancelled) {
@@ -85,7 +91,13 @@ export default function ScanReviewScreen() {
 
       if (!cancelled) {
         setDetecting(false);
-        setItems(cloneDefaultScanIngredients());
+        const demo = cloneDefaultScanIngredients();
+        setItems(demo);
+        void enrichScanItemsWithThumbnails(demo).then((enriched) => {
+          if (!cancelled) {
+            setItems(enriched);
+          }
+        });
       }
     }
 
@@ -119,15 +131,27 @@ export default function ScanReviewScreen() {
       return;
     }
     if (editorMode === 'add') {
+      const id = nextId();
       const thumb = imageUri ?? items[0]?.imageUri ?? '';
-      setItems((prev) => [
-        ...prev,
-        { id: nextId(), name, detail, imageUri: thumb },
-      ]);
+      setItems((prev) => [...prev, { id, name, detail, imageUri: thumb }]);
+      void resolveIngredientThumbnail(name).then((url) => {
+        if (url) {
+          setItems((prev) => prev.map((r) => (r.id === id ? { ...r, thumbnailUrl: url } : r)));
+        }
+      });
     } else if (editingId) {
       setItems((prev) =>
-        prev.map((r) => (r.id === editingId ? { ...r, name, detail } : r)),
+        prev.map((r) =>
+          r.id === editingId ? { ...r, name, detail, thumbnailUrl: undefined } : r,
+        ),
       );
+      void resolveIngredientThumbnail(name).then((url) => {
+        if (url) {
+          setItems((prev) =>
+            prev.map((r) => (r.id === editingId ? { ...r, thumbnailUrl: url } : r)),
+          );
+        }
+      });
     }
     setEditorOpen(false);
   };
@@ -218,10 +242,10 @@ export default function ScanReviewScreen() {
                     ? 'Nothing was added from this photo yet—often due to a network issue or an API rate limit (see the banner if one appeared). Add items below, or tap Confirm to return home.'
                     : 'Our sommelier AI has identified these fresh arrivals. Adjust the list below to refine your personalized recipe suggestions.'}
               </Text>
-              {!detecting && imageUri && !isGeminiConfigured() ? (
+              {!detecting && imageUri && !isVisionScanConfigured() ? (
                 <Text style={styles.demoHint}>
-                  Demo mode: results are sample ingredients, not from your photo. Add EXPO_PUBLIC_GEMINI_API_KEY to
-                  your .env and restart Expo for real detection.
+                  Demo mode: sample ingredients only. Add EXPO_PUBLIC_OPENAI_API_KEY and/or EXPO_PUBLIC_GEMINI_API_KEY
+                  to .env and restart Expo for real vision scan.
                 </Text>
               ) : null}
             </View>
@@ -236,7 +260,11 @@ export default function ScanReviewScreen() {
             {items.map((row) => (
               <View key={row.id} style={styles.row}>
                 <View style={styles.thumbWell}>
-                  <Image source={{ uri: row.imageUri }} style={styles.thumb} contentFit="cover" />
+                  <Image
+                    source={{ uri: row.thumbnailUrl ?? row.imageUri }}
+                    style={styles.thumb}
+                    contentFit="cover"
+                  />
                 </View>
                 <View style={styles.rowBody}>
                   <Text style={styles.rowTitle}>{row.name}</Text>
