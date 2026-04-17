@@ -16,6 +16,7 @@ import {
   setProfile,
   type StoredProfile,
 } from '@/lib/profile-storage';
+import { upsertMealMindProfile } from '@/lib/supabase-profile';
 
 const HERO_IMG =
   'https://lh3.googleusercontent.com/aida-public/AB6AXuCO52_7ozVxh5WvNiZDQyDtU3dJwOKEtPlCCUNZTgsfhOZInryw4L0i-iCCmc_856pZXewDUfpBF1Wbg6Ioiaz5rHpvpt5aipZG0D-ascbkYBZ0ylF-PvhHt64exdQtZ7qG9v8tsUWZNFNr7Xr6yFEhbDy3UUR3kBrqWY6zueS7kFNdum6RUikpfah_yWQGqrS_zNYv87_LGklNZ464l_1dZBeumPtoNCWFSppea6DWgdkcrIwGjzYoYy5xWY1k5ZlCEiw-v3Jv2vE';
@@ -47,28 +48,23 @@ export default function GetStartedScreen() {
   const router = useRouter();
   const navigation = useNavigation();
 
-  const skipToTabs = useCallback(async () => {
+  const completeAndEnterApp = useCallback(async () => {
     await setGetStartedSeen();
     const existing = await getProfile();
-    if (existing == null) {
-      await setProfile(defaultProfile());
-    }
+    const next: StoredProfile = { ...(existing ?? defaultProfile()), flowOnboardingDone: true };
+    await setProfile(next);
+    await upsertMealMindProfile(next);
     await setOnboardingComplete();
     router.replace('/(tabs)');
-  }, [router]);
-
-  const goToOnboarding = useCallback(async () => {
-    await setGetStartedSeen();
-    router.replace('/onboarding');
   }, [router]);
 
   const onBack = useCallback(() => {
     if (navigation.canGoBack()) {
       navigation.goBack();
     } else {
-      void skipToTabs();
+      void completeAndEnterApp();
     }
-  }, [navigation, skipToTabs]);
+  }, [navigation, completeAndEnterApp]);
 
   return (
     <MealMindScreen scroll={false} contentBottomInset={0}>
@@ -114,10 +110,10 @@ export default function GetStartedScreen() {
               label="Add Ingredients"
               trailing={<MaterialIcons name="add-circle" size={22} color={MealMindColors.onPrimary} />}
               style={styles.primaryCta}
-              onPress={() => void goToOnboarding()}
+              onPress={() => void completeAndEnterApp()}
             />
 
-            <Pressable onPress={() => void skipToTabs()} style={styles.textLink}>
+            <Pressable onPress={() => void completeAndEnterApp()} style={styles.textLink}>
               <Text style={styles.textLinkLabel}>Browse popular recipes</Text>
             </Pressable>
           </View>

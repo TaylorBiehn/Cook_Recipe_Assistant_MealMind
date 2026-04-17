@@ -1,0 +1,6 @@
+/** Hero imagery from `MealMind/Design/stitch_signup` and `stitch_signin` mocks. */
+export const SIGNUP_HERO_IMAGE =
+  'https://lh3.googleusercontent.com/aida-public/AB6AXuComuJwJgpA69MTCneff9eIRidThMQ-WbYMaibZSK1vjMdek2dLLErOR1PrNa7WCQsmeOGArIqDv-pcBZsvQLyPwQw8ix7DApLnOkavrMzKzwraSPa5GS1RX_fKqtFk8tWl7MGfXf53jgvCppMvkhv-_RJE6wBCf0ABHicHPT3LsZ3C4DuTIgrFtFfU3TLg1SyaheJqqsnb3op0eatnOF49JyEXDDHaJ8da5hlCufwOXilnqiTNy8ewTneIF7V9UNb_c5duPZFgIH2_';
+
+export const SIGNIN_HERO_IMAGE =
+  'https://lh3.googleusercontent.com/aida-public/AB6AXuDszN1X1OMgfs_jz9YHG-Wi_RbCAf5hQ09GyTyKOKnROORfqrygCbaI6Bfqe3goObmtfg-ACgtw_b5RL95YtpVN-pf_1tbflIcebrBHaQ6PQujds18efbJZ2xkpbQn2Rq4yGMKodCdIhV4Nb60KUON_8bp37NjEsp5D9Its6QmbHENbUefzZIl6YJKvfnchKeXtx_j4RaDv5423757C36xQimqdKST3AbUltZVfcdP0f2wZPMU6qIH6Qm7tMu5x2581npVaR5jd08ck';

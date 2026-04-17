@@ -6,14 +6,17 @@ import { useCallback, useEffect, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Switch, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { GlowButton, MealMindScreen } from '@/components/mealmind';
+import { GlowButton, MealMindScreen, OnboardingProfileSummary } from '@/components/mealmind';
 import { SKILL_LABELS } from '@/constants/onboarding-options';
 import { MealMindColors } from '@/constants/mealmind-colors';
 import { MealMindRadii, MealMindShadow, MealMindSpace } from '@/constants/mealmind-layout';
 import { MealMindFonts } from '@/constants/mealmind-typography';
+import { resetAppForDev } from '@/lib/dev-reset';
 import { getCountryLabel } from '@/lib/country-picker-data';
+import { signOutMealMind } from '@/lib/supabase-auth';
 import type { StoredProfile } from '@/lib/profile-storage';
-import { clearOnboardingForDev, getProfile, setProfile } from '@/lib/profile-storage';
+import { getProfile, hydrateLocalFlagsFromRemoteProfile, setProfile } from '@/lib/profile-storage';
+import { fetchMealMindProfile, upsertMealMindProfile } from '@/lib/supabase-profile';
 
 const AVATAR_URI =
   'https://lh3.googleusercontent.com/aida-public/AB6AXuC6zIQpZoLz6lEaMOqDS2VVx0DFeSX-SEjOTIRvz3R5JQPxd7kmv8Um6kRCyZRzMM3BjfHsGzKYYnFakERLimFU8Jfzu5BG7AmqgcoKFnzXwDS0DQeS4briRYgF3IAwAJwE7_yvBOdD8vjsXgVlFRgbjgiCQ1OQjkE-s5bBU81eyGjKd2kQPavZupmThzw_BfjqDGMnnRYTH8Ii03JQoNklpBDrsC8VYSMWn1YX6VGPOJzXcnMSZGO80ctIKWELVq4k7vz5QX8fYUM';
@@ -26,11 +29,24 @@ const defaultProfile = (): StoredProfile => ({
   dislikes: [],
   vegetarianFocus: false,
   pescetarianFriendly: false,
+  wellnessGoal: 'unsure',
+  dietaryPreference: 'none',
+  cuisines: [],
+  allergies: [],
+  avoidFoods: [],
+  cookingExperience: 'home_cook',
+  kitchenEquipment: [],
+  cookingSchedule: 'flexible',
+  flavorProfile: [],
+  spicyLevel: 'medium',
+  calorieFocus: 'no_preference',
 });
 
 async function patchProfile(partial: Partial<StoredProfile>): Promise<void> {
   const cur = (await getProfile()) ?? defaultProfile();
-  await setProfile({ ...cur, ...partial });
+  const next = { ...cur, ...partial };
+  await setProfile(next);
+  await upsertMealMindProfile(next);
 }
 
 function TasteMeter({ label, filled }: { label: string; filled: number }) {
@@ -52,7 +68,16 @@ export default function ProfileScreen() {
   const [profile, setProfileState] = useState<StoredProfile | null>(null);
 
   const reload = useCallback(() => {
-    void getProfile().then(setProfileState);
+    void (async () => {
+      const remote = await fetchMealMindProfile();
+      if (remote) {
+        await hydrateLocalFlagsFromRemoteProfile(remote);
+        setProfileState(remote);
+        return;
+      }
+      const local = await getProfile();
+      setProfileState(local);
+    })();
   }, []);
 
   useEffect(() => {
@@ -81,10 +106,14 @@ export default function ProfileScreen() {
     await patchProfile({ pescetarianFriendly: value });
   };
 
-  const spicy = profile?.preferences.includes('spicy') ? 2 : 1;
-  const sweet = profile?.preferences.includes('sweet') ? 1 : 0;
+  const onSignOut = useCallback(() => {
+    void signOutMealMind().then(() => router.replace('/signin'));
+  }, [router]);
+
+  const spicy = profile?.preferences?.includes('spicy') ? 2 : 1;
+  const sweet = profile?.preferences?.includes('sweet') ? 1 : 0;
   const savory =
-    profile?.preferences.includes('savory') || profile?.preferences.includes('healthy') ? 3 : 2;
+    profile?.preferences?.includes('savory') || profile?.preferences?.includes('healthy') ? 3 : 2;
 
   if (profile == null) {
     return (
@@ -101,7 +130,15 @@ export default function ProfileScreen() {
         <View style={styles.empty}>
           <Text style={styles.emptyTitle}>Your Palate Profile</Text>
           <Text style={styles.emptySub}>Finish onboarding to customize your experience.</Text>
-          <GlowButton label="Go to onboarding" onPress={() => router.replace('/onboarding')} />
+          <GlowButton label="Personalize in wizard" onPress={() => router.replace('/intro')} />
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel="Sign out"
+            style={({ pressed }) => [styles.signOutBtn, pressed && styles.signOutBtnPressed]}
+            onPress={onSignOut}>
+            <MaterialIcons name="logout" size={20} color={MealMindColors.onSurfaceVariant} />
+            <Text style={styles.signOutBtnText}>Sign out</Text>
+          </Pressable>
         </View>
       </MealMindScreen>
     );
@@ -131,13 +168,15 @@ export default function ProfileScreen() {
               </Text>
             </View>
 
+            <OnboardingProfileSummary profile={profile} />
+
             <View style={styles.countryCard}>
               <View style={styles.cardTop}>
                 <View>
                   <Text style={styles.kicker}>CULTURAL ROOTS</Text>
                   <Text style={styles.cardH3}>Country & Heritage</Text>
                 </View>
-                <Pressable style={styles.editPill} onPress={() => router.push('/onboarding')}>
+                <Pressable style={styles.editPill} onPress={() => router.push('/intro')}>
                   <Text style={styles.editPillText}>Edit</Text>
                 </Pressable>
               </View>
@@ -165,32 +204,6 @@ export default function ProfileScreen() {
               <Pressable style={styles.outlineBtn}>
                 <Text style={styles.outlineBtnText}>Fine Tune</Text>
               </Pressable>
-            </View>
-
-            <View style={styles.dislikesCard}>
-              <View style={styles.tasteHead}>
-                <Text style={styles.cardH3}>Dislikes & Allergies</Text>
-                <MaterialIcons name="warning" size={22} color={MealMindColors.error} />
-              </View>
-              <View style={styles.pillWrap}>
-                {profile.dislikes.length === 0 ? (
-                  <Text style={styles.muted}>None added yet — set them in registration or here soon.</Text>
-                ) : (
-                  profile.dislikes.map((d) => (
-                    <View key={d} style={styles.dislikePill}>
-                      <Text style={styles.dislikePillText}>{d}</Text>
-                      <MaterialIcons name="close" size={16} color={MealMindColors.onSecondaryContainer} />
-                    </View>
-                  ))
-                )}
-                <Pressable style={styles.addPill}>
-                  <MaterialIcons name="add" size={16} color={MealMindColors.onSurfaceVariant} />
-                  <Text style={styles.addPillText}>Add New</Text>
-                </Pressable>
-              </View>
-              <Text style={styles.disclaimer}>
-                We automatically exclude recipes containing these ingredients from your discovery feed.
-              </Text>
             </View>
 
             <View style={styles.dietSection}>
@@ -226,15 +239,26 @@ export default function ProfileScreen() {
             <GlowButton
               label="Update My Preferences"
               trailing={<MaterialIcons name="save" size={22} color={MealMindColors.onPrimary} />}
-              onPress={() => {}}
+              onPress={() => {
+                if (profile) void upsertMealMindProfile(profile);
+              }}
             />
+
+            <Pressable
+              accessibilityRole="button"
+              accessibilityLabel="Sign out"
+              style={({ pressed }) => [styles.signOutBtn, pressed && styles.signOutBtnPressed]}
+              onPress={onSignOut}>
+              <MaterialIcons name="logout" size={20} color={MealMindColors.onSurfaceVariant} />
+              <Text style={styles.signOutBtnText}>Sign out</Text>
+            </Pressable>
 
             <Pressable
               style={styles.devLink}
               onPress={() => {
-                void clearOnboardingForDev().then(() => router.replace('/'));
+                void resetAppForDev().then(() => router.replace('/'));
               }}>
-              <Text style={styles.devLinkText}>Clear onboarding (dev)</Text>
+              <Text style={styles.devLinkText}>Reset app & sign out (dev)</Text>
             </Pressable>
           </View>
         </ScrollView>
@@ -443,58 +467,6 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: MealMindColors.onSurface,
   },
-  dislikesCard: {
-    backgroundColor: MealMindColors.surfaceContainerLowest,
-    borderRadius: MealMindRadii.md,
-    padding: MealMindSpace.lg,
-    gap: MealMindSpace.md,
-    ...MealMindShadow.ambient,
-  },
-  pillWrap: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: MealMindSpace.sm,
-    alignItems: 'center',
-  },
-  dislikePill: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-    paddingHorizontal: MealMindSpace.sm + 2,
-    paddingVertical: 6,
-    borderRadius: MealMindRadii.full,
-    backgroundColor: MealMindColors.secondaryContainer,
-  },
-  dislikePillText: {
-    fontFamily: MealMindFonts.bodyMedium,
-    fontSize: 12,
-    color: MealMindColors.onSecondaryContainer,
-  },
-  addPill: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 4,
-    paddingHorizontal: MealMindSpace.sm + 2,
-    paddingVertical: 6,
-    borderRadius: MealMindRadii.full,
-    backgroundColor: MealMindColors.surfaceContainerHigh,
-  },
-  addPillText: {
-    fontFamily: MealMindFonts.bodyMedium,
-    fontSize: 12,
-    color: MealMindColors.onSurfaceVariant,
-  },
-  disclaimer: {
-    fontFamily: MealMindFonts.body,
-    fontSize: 12,
-    lineHeight: 18,
-    color: MealMindColors.onSurfaceVariant,
-  },
-  muted: {
-    fontFamily: MealMindFonts.body,
-    fontSize: 14,
-    color: MealMindColors.onSurfaceVariant,
-  },
   dietSection: {
     backgroundColor: `${MealMindColors.tertiaryContainer}33`,
     borderRadius: MealMindRadii.md,
@@ -523,6 +495,23 @@ const styles = StyleSheet.create({
   },
   toggleLabel: {
     fontFamily: MealMindFonts.bodyMedium,
+    fontSize: 15,
+    color: MealMindColors.onSurface,
+  },
+  signOutBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: MealMindSpace.sm,
+    paddingVertical: MealMindSpace.md,
+    borderRadius: MealMindRadii.full,
+    borderWidth: StyleSheet.hairlineWidth,
+    borderColor: `${MealMindColors.outlineVariant}CC`,
+    backgroundColor: MealMindColors.surfaceContainerLow,
+  },
+  signOutBtnPressed: { opacity: 0.88 },
+  signOutBtnText: {
+    fontFamily: MealMindFonts.labelSemibold,
     fontSize: 15,
     color: MealMindColors.onSurface,
   },
