@@ -28,6 +28,19 @@
     "plugins": [
       "expo-router",
       [
+        "expo-location",
+        {
+          "locationWhenInUsePermission": "MealMind uses your location once to suggest your country when you sign up. You can change it anytime."
+        }
+      ],
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "MealMind accesses your photos to scan ingredients from your library.",
+          "cameraPermission": "MealMind uses the camera to photograph ingredients for scanning."
+        }
+      ],
+      [
         "expo-splash-screen",
         {
           "image": "./assets/images/splash-icon.png",

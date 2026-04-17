@@ -16,9 +16,17 @@ import { MealMindFlowHeader, MealMindScreen } from '@/components/mealmind';
 import { MealMindColors } from '@/constants/mealmind-colors';
 import { MealMindRadii, MealMindShadow, MealMindSpace } from '@/constants/mealmind-layout';
 import { MealMindFonts, headlineTracking } from '@/constants/mealmind-typography';
+import { generateRecipesFromContext } from '@/lib/ai-recipe-generate';
+import { showErrorToast } from '@/lib/mealmind-toast';
+import { getProfile } from '@/lib/profile-storage';
+import {
+  clearLastGeneratedRecipes,
+  setLastGeneratedRecipes,
+  takePendingRecipeSearch,
+} from '@/lib/recipe-generation-session';
 
 const CONTENT_MAX = 448;
-const NAV_MS = 2200;
+const MIN_SPIN_MS = 1000;
 const PROGRESS_MS = 2000;
 
 const HERO_BG =
@@ -37,10 +45,46 @@ export default function LoadingScreen() {
   const trackW = Math.min(CONTENT_MAX, Math.max(0, winW - horizontalPad));
 
   useEffect(() => {
-    const navTimer = setTimeout(() => {
-      router.replace('/results');
-    }, NAV_MS);
-    return () => clearTimeout(navTimer);
+    let cancelled = false;
+    const run = async () => {
+      const t0 = Date.now();
+      const pending = await takePendingRecipeSearch();
+      if (pending) {
+        try {
+          const profile = await getProfile();
+          const recipes = await generateRecipesFromContext(pending, profile);
+          if (recipes.length > 0) {
+            await setLastGeneratedRecipes(recipes, {
+              mealTypeLabel: pending.mealTypeLabel,
+              cookingTimeLabel: pending.cookingTimeLabel,
+              cookingStyleLabel: pending.cookingStyleLabel,
+              searchContext: pending,
+            });
+            for (const r of recipes) {
+              const u = r.heroImage?.trim();
+              if (u?.startsWith('http')) {
+                void Image.prefetch(u);
+              }
+            }
+          } else {
+            await clearLastGeneratedRecipes();
+          }
+        } catch (e) {
+          await clearLastGeneratedRecipes();
+          showErrorToast('Recipes', e instanceof Error ? e.message : 'Could not generate recipes.');
+        }
+      }
+      const elapsed = Date.now() - t0;
+      const wait = Math.max(0, MIN_SPIN_MS - elapsed);
+      await new Promise<void>((resolve) => setTimeout(resolve, wait));
+      if (!cancelled) {
+        router.replace('/results');
+      }
+    };
+    void run();
+    return () => {
+      cancelled = true;
+    };
   }, [router]);
 
   useEffect(() => {

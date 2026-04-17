@@ -1,22 +1,93 @@
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import { LinearGradient } from 'expo-linear-gradient';
-import { Image } from 'expo-image';
+import * as WebBrowser from 'expo-web-browser';
+import { WebBrowserPresentationStyle } from 'expo-web-browser';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import { FallbackRecipeImage } from '@/components/FallbackRecipeImage';
 import { GlowButton, MealMindMainTabFooter, MealMindScreen } from '@/components/mealmind';
 import { MealMindColors } from '@/constants/mealmind-colors';
 import { MealMindRadii, MealMindShadow, MealMindSpace } from '@/constants/mealmind-layout';
 import { MealMindFonts, headlineTracking } from '@/constants/mealmind-typography';
+import { showErrorToast } from '@/lib/mealmind-toast';
+import type { MockRecipe } from '@/lib/mealmind-recipe-mocks';
 import { getMockRecipe } from '@/lib/mealmind-recipe-mocks';
+import { resolveRecipeTutorialUrl } from '@/lib/recipe-tutorial-video';
+import { getGeneratedRecipeById } from '@/lib/recipe-generation-session';
 
 export default function RecipeDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string | string[] }>();
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const rawId = id == null ? undefined : Array.isArray(id) ? id[0] : id;
-  const recipe = getMockRecipe(rawId);
+  const [recipe, setRecipe] = useState<MockRecipe | null>(null);
+  /** Generated recipes must not fall back to design-mock dish photos on load errors. */
+  const [useNeutralImageFallbacks, setUseNeutralImageFallbacks] = useState(false);
+  const [openingTutorial, setOpeningTutorial] = useState(false);
+  const tutorialBusyRef = useRef(false);
+
+  const openTutorialVideo = useCallback(async (r: MockRecipe) => {
+    if (tutorialBusyRef.current) {
+      return;
+    }
+    tutorialBusyRef.current = true;
+    setOpeningTutorial(true);
+    try {
+      const url = await resolveRecipeTutorialUrl(r);
+      await WebBrowser.openBrowserAsync(url, {
+        presentationStyle: WebBrowserPresentationStyle.FULL_SCREEN,
+        toolbarColor: MealMindColors.surface,
+        controlsColor: MealMindColors.primary,
+      });
+    } catch (e) {
+      showErrorToast('Video', e instanceof Error ? e.message : 'Could not open tutorial.');
+    } finally {
+      tutorialBusyRef.current = false;
+      setOpeningTutorial(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    let cancelled = false;
+    void (async () => {
+      const generated = rawId ? await getGeneratedRecipeById(rawId) : null;
+      if (cancelled) {
+        return;
+      }
+      if (generated != null) {
+        setRecipe(generated);
+        setUseNeutralImageFallbacks(true);
+      } else {
+        setRecipe(getMockRecipe(rawId));
+        setUseNeutralImageFallbacks(false);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [rawId]);
+
+  if (recipe == null) {
+    return (
+      <MealMindScreen scroll={false} contentBottomInset={0} footer={<MealMindMainTabFooter />}>
+        <View style={[styles.shell, styles.loadingShell]}>
+          <View style={styles.topBar}>
+            <Pressable accessibilityRole="button" accessibilityLabel="Go back" hitSlop={12} onPress={() => router.back()} style={styles.iconBtn}>
+              <MaterialIcons name="arrow-back" size={24} color={MealMindColors.primary} />
+            </Pressable>
+            <Text style={styles.topTitle} numberOfLines={1}>
+              Smart Family Recipe Assistant
+            </Text>
+            <View style={styles.iconBtn} />
+          </View>
+          <ActivityIndicator size="large" color={MealMindColors.primary} />
+        </View>
+      </MealMindScreen>
+    );
+  }
 
   return (
     <MealMindScreen scroll={false} contentBottomInset={0} footer={<MealMindMainTabFooter />}>
@@ -38,7 +109,13 @@ export default function RecipeDetailScreen() {
           contentContainerStyle={{ paddingBottom: insets.bottom + 100 }}
           showsVerticalScrollIndicator={false}>
           <View style={styles.heroWrap}>
-            <Image source={{ uri: recipe.heroImage }} style={styles.heroImg} contentFit="cover" />
+            <FallbackRecipeImage
+              uri={recipe.heroImage}
+              style={styles.heroImg}
+              contentFit="cover"
+              useNeutralFallbacks={useNeutralImageFallbacks}
+              stableKey={`${recipe.id}-hero`}
+            />
             <LinearGradient colors={['transparent', MealMindColors.surface]} locations={[0.35, 1]} style={StyleSheet.absoluteFill} pointerEvents="none" />
             <View style={styles.metaCard}>
               <View style={styles.tagRow}>
@@ -72,18 +149,38 @@ export default function RecipeDetailScreen() {
           </View>
 
           <View style={styles.sectionPad}>
-            <Pressable style={({ pressed }) => [styles.videoCard, pressed && styles.pressed]}>
-              <Image source={{ uri: recipe.videoThumb }} style={styles.videoThumb} contentFit="cover" />
-              <View style={styles.videoOverlay}>
+            <Pressable
+              accessibilityRole="button"
+              accessibilityLabel="Watch recipe tutorial on YouTube"
+              onPress={() => void openTutorialVideo(recipe)}
+              disabled={openingTutorial}
+              style={({ pressed }) => [styles.videoCard, pressed && styles.pressed, openingTutorial && styles.videoCardBusy]}>
+              <FallbackRecipeImage
+                uri={recipe.videoThumb}
+                style={styles.videoThumb}
+                contentFit="cover"
+                useNeutralFallbacks={useNeutralImageFallbacks}
+                stableKey={`${recipe.id}-video`}
+              />
+              <View style={styles.videoOverlay} pointerEvents="none">
                 <View style={styles.playBtn}>
-                  <MaterialIcons name="play-arrow" size={40} color={MealMindColors.primary} />
+                  {openingTutorial ? (
+                    <ActivityIndicator color={MealMindColors.primary} />
+                  ) : (
+                    <MaterialIcons name="play-arrow" size={40} color={MealMindColors.primary} />
+                  )}
                 </View>
                 <Text style={styles.videoTitle}>Watch Video Tutorial</Text>
                 <Text style={styles.videoSub}>{recipe.subtitle}</Text>
+                <Text style={styles.videoHint}>
+                  {process.env.EXPO_PUBLIC_YOUTUBE_API_KEY?.trim()
+                    ? 'Opens the top matching cooking video'
+                    : 'Opens YouTube with a search matched to this recipe'}
+                </Text>
               </View>
               <View style={styles.hdBadge}>
-                <MaterialIcons name="hd" size={16} color={MealMindColors.onPrimary} />
-                <Text style={styles.hdText}>4K</Text>
+                <MaterialIcons name="play-circle-outline" size={16} color={MealMindColors.onPrimary} />
+                <Text style={styles.hdText}>YouTube</Text>
               </View>
             </Pressable>
 
@@ -154,6 +251,10 @@ const styles = StyleSheet.create({
   shell: {
     flex: 1,
     backgroundColor: MealMindColors.surface,
+  },
+  loadingShell: {
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   topBar: {
     flexDirection: 'row',
@@ -267,6 +368,9 @@ const styles = StyleSheet.create({
     borderColor: `${MealMindColors.outlineVariant}1A`,
     ...MealMindShadow.ambient,
   },
+  videoCardBusy: {
+    opacity: 0.92,
+  },
   videoThumb: {
     ...StyleSheet.absoluteFillObject,
     opacity: 0.9,
@@ -299,6 +403,13 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: 'rgba(255,255,255,0.92)',
     textAlign: 'center',
+  },
+  videoHint: {
+    fontFamily: MealMindFonts.bodyMedium,
+    fontSize: 12,
+    color: 'rgba(255,255,255,0.75)',
+    textAlign: 'center',
+    marginTop: 4,
   },
   hdBadge: {
     position: 'absolute',

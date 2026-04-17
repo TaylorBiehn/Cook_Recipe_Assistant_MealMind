@@ -19,6 +19,12 @@ export type MockRecipe = {
   familyTip: string;
   steps: MockStep[];
   nutrition: { label: string; value: string }[];
+  /** AI-only: keywords used to pick a food photo; omitted after resolve or for static mocks. */
+  imageQuery?: string;
+  /** Optional direct tutorial link (https). If unset, detail screen opens YouTube search for the title. */
+  tutorialVideoUrl?: string;
+  /** AI: phrase optimized for finding a matching cooking video (title + main foods). */
+  tutorialSearchQuery?: string;
 };
 
 export const RESULTS_FEATURED = {
@@ -208,3 +214,13 @@ export const FAVORITE_CARDS: FavoriteCard[] = [
     meta: [{ icon: 'schedule', text: '10m' }],
   },
 ];
+
+/** Hero URLs that already load in-app (design CDN). Use for AI image fallbacks and error recovery. */
+export const TRUSTED_RECIPE_HERO_URLS: readonly string[] = Array.from(
+  new Set<string>([
+    RESULTS_FEATURED.image,
+    RESULTS_SECONDARY[0].image,
+    RESULTS_SECONDARY[1].image,
+    ...FAVORITE_CARDS.map((c) => c.image),
+  ]),
+);
