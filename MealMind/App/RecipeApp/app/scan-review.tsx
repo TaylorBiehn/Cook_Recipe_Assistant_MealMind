@@ -142,6 +142,7 @@ export default function ScanReviewScreen() {
   };
 
   const footerReserve = Math.max(insets.bottom, 16) + 96;
+  const listEmpty = !detecting && items.length === 0;
 
   return (
     <View style={[styles.root, { paddingTop: insets.top }]}>
@@ -180,7 +181,9 @@ export default function ScanReviewScreen() {
                 {detecting ? (
                   <ActivityIndicator size="small" color={MealMindColors.primary} style={styles.progressSpinner} />
                 ) : null}
-                <Text style={styles.progressLeft}>{detecting ? 'SCANNING IMAGE' : 'SCAN COMPLETE'}</Text>
+                <Text style={styles.progressLeft}>
+                  {detecting ? 'SCANNING IMAGE' : listEmpty ? 'NO INGREDIENTS' : 'SCAN COMPLETE'}
+                </Text>
               </View>
               <Text style={styles.progressRight}>
                 {detecting ? 'Analyzing photo…' : `${items.length} ${items.length === 1 ? 'Item' : 'Items'} Found`}
@@ -211,7 +214,9 @@ export default function ScanReviewScreen() {
               <Text style={styles.chefBody}>
                 {detecting
                   ? 'Hang tight—we are scanning your photo for ingredients. Edits will be available in a moment.'
-                  : 'Our sommelier AI has identified these fresh arrivals. Adjust the list below to refine your personalized recipe suggestions.'}
+                  : listEmpty
+                    ? 'Nothing was added from this photo yet—often due to a network issue or an API rate limit (see the banner if one appeared). Add items below, or tap Confirm to return home.'
+                    : 'Our sommelier AI has identified these fresh arrivals. Adjust the list below to refine your personalized recipe suggestions.'}
               </Text>
               {!detecting && imageUri && !isGeminiConfigured() ? (
                 <Text style={styles.demoHint}>
