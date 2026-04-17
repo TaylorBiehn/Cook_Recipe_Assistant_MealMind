@@ -1,3 +1,5 @@
+import 'react-native-url-polyfill/auto';
+
 import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
 import { Stack } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
@@ -5,10 +7,12 @@ import { StatusBar } from 'expo-status-bar';
 import { useEffect } from 'react';
 import { View } from 'react-native';
 import 'react-native-reanimated';
+import Toast from 'react-native-toast-message';
 
 import { MealMindColors } from '@/constants/mealmind-colors';
 import { useMealMindFonts } from '@/hooks/use-mealmind-fonts';
 import { useColorScheme } from '@/hooks/use-color-scheme';
+import { mealmindToastConfig } from '@/lib/mealmind-toast';
 
 SplashScreen.preventAutoHideAsync();
 
@@ -52,15 +56,19 @@ export default function RootLayout() {
       <ThemeProvider value={colorScheme === 'dark' ? MealMindDarkNavigationTheme : MealMindNavigationTheme}>
         <Stack>
           <Stack.Screen name="index" options={{ headerShown: false }} />
+          <Stack.Screen name="signup" options={{ headerShown: false, presentation: 'card' }} />
+          <Stack.Screen name="signin" options={{ headerShown: false, presentation: 'card' }} />
           <Stack.Screen name="intro" options={{ headerShown: false, presentation: 'card' }} />
           <Stack.Screen name="get-started" options={{ headerShown: false, presentation: 'card' }} />
           <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-          <Stack.Screen name="onboarding" options={{ headerShown: false, presentation: 'card' }} />
           <Stack.Screen name="loading" options={{ headerShown: false, presentation: 'card' }} />
+          <Stack.Screen name="scan" options={{ headerShown: false, presentation: 'fullScreenModal' }} />
+          <Stack.Screen name="scan-review" options={{ headerShown: false, presentation: 'card' }} />
           <Stack.Screen name="results" options={{ headerShown: false, presentation: 'card' }} />
           <Stack.Screen name="recipe/[id]" options={{ headerShown: false, presentation: 'card' }} />
         </Stack>
         <StatusBar style="dark" />
+        <Toast config={mealmindToastConfig} />
       </ThemeProvider>
     </View>
   );

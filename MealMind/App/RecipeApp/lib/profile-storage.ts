@@ -4,6 +4,8 @@ export const ONBOARDING_COMPLETE_KEY = 'mealmind.onboardingComplete';
 export const GET_STARTED_SEEN_KEY = 'mealmind.getStartedSeen';
 export const INTRO_SEEN_KEY = 'mealmind.introSeen';
 export const PROFILE_DRAFT_KEY = 'mealmind.profileDraft';
+/** Last signed-in Supabase user id (for clearing local profile when the account changes). */
+export const LAST_AUTH_USER_ID_KEY = 'mealmind.lastAuthUserId';
 
 export type KitchenComfort = 'quick_simple' | 'balanced' | 'ambitious';
 export type SkillLevel = 'beginner' | 'intermediate' | 'advanced';
@@ -53,6 +55,10 @@ export type StoredProfile = {
   flavorProfile: string[];
   spicyLevel: 'mild' | 'medium' | 'hot';
   calorieFocus: 'no_preference' | 'lower' | 'balanced' | 'higher';
+  /** User finished the 12-step intro; stored in profile JSON for sync across devices. */
+  introWizardComplete?: boolean;
+  /** User finished get-started / full gate; returning sign-ins skip onboarding. */
+  flowOnboardingDone?: boolean;
 };
 
 function isSkillLevel(x: unknown): x is SkillLevel {
@@ -98,9 +104,11 @@ function parseStringArray(x: unknown): string[] {
   return Array.isArray(x) ? x.filter((v): v is string => typeof v === 'string') : [];
 }
 
-function parseProfile(raw: string): StoredProfile | null {
+/** Normalize profile JSON from AsyncStorage or Supabase `profiles.profile` jsonb. */
+export function normalizeStoredProfileJson(input: unknown): StoredProfile | null {
+  if (typeof input !== 'object' || input === null) return null;
+  const p = input as Record<string, unknown>;
   try {
-    const p = JSON.parse(raw) as Record<string, unknown>;
     return {
       countryCode: typeof p.countryCode === 'string' ? p.countryCode : 'WORLDWIDE',
       skillLevel: isSkillLevel(p.skillLevel) ? p.skillLevel : 'beginner',
@@ -126,7 +134,29 @@ function parseProfile(raw: string): StoredProfile | null {
         p.calorieFocus === 'higher'
           ? p.calorieFocus
           : 'no_preference',
+      ...(p.introWizardComplete === true ? { introWizardComplete: true as const } : {}),
+      ...(p.flowOnboardingDone === true ? { flowOnboardingDone: true as const } : {}),
     };
+  } catch {
+    return null;
+  }
+}
+
+/** Apply server-backed onboarding progress to local AsyncStorage flags (same device or new device). */
+export async function hydrateLocalFlagsFromRemoteProfile(remote: StoredProfile): Promise<void> {
+  await setProfile(remote);
+  if (remote.introWizardComplete === true) {
+    await setIntroSeen();
+  }
+  if (remote.flowOnboardingDone === true) {
+    await setGetStartedSeen();
+    await setOnboardingComplete();
+  }
+}
+
+function parseProfile(raw: string): StoredProfile | null {
+  try {
+    return normalizeStoredProfileJson(JSON.parse(raw));
   } catch {
     return null;
   }
@@ -169,7 +199,23 @@ export async function setProfile(profile: StoredProfile): Promise<void> {
   await AsyncStorage.setItem(PROFILE_DRAFT_KEY, JSON.stringify(profile));
 }
 
-export async function clearOnboardingForDev(): Promise<void> {
-  // Dev-only helper: wipe onboarding gating flags and the saved draft so you can retest flows.
+/** Wipes intro / get-started / onboarding-complete flags and the profile draft (e.g. sign out or account switch). */
+export async function clearProfileAndOnboardingState(): Promise<void> {
   await AsyncStorage.multiRemove([INTRO_SEEN_KEY, ONBOARDING_COMPLETE_KEY, GET_STARTED_SEEN_KEY, PROFILE_DRAFT_KEY]);
+}
+
+export async function getLastAuthUserId(): Promise<string | null> {
+  return await AsyncStorage.getItem(LAST_AUTH_USER_ID_KEY);
+}
+
+export async function setLastAuthUserId(userId: string): Promise<void> {
+  await AsyncStorage.setItem(LAST_AUTH_USER_ID_KEY, userId);
+}
+
+export async function clearLastAuthUserId(): Promise<void> {
+  await AsyncStorage.removeItem(LAST_AUTH_USER_ID_KEY);
+}
+
+export async function clearOnboardingForDev(): Promise<void> {
+  await clearProfileAndOnboardingState();
 }
