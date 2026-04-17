@@ -3,7 +3,10 @@ export type ScanIngredientItem = {
   id: string;
   name: string;
   detail: string;
+  /** Original scan / picker photo (fallback). */
   imageUri: string;
+  /** Per-ingredient stock image when resolved (TheMealDB / Wikimedia). */
+  thumbnailUrl?: string;
 };
 
 export const DEFAULT_SCAN_INGREDIENTS: ScanIngredientItem[] = [

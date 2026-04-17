@@ -36,6 +36,16 @@ class GeminiScanError extends Error {
   }
 }
 
+class OpenAiScanError extends Error {
+  constructor(
+    readonly httpStatus: number,
+    message: string,
+  ) {
+    super(message);
+    this.name = 'OpenAiScanError';
+  }
+}
+
 function sleepMs(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
@@ -73,6 +83,35 @@ function mapGeminiFailure(status: number, rawMessage: string): GeminiScanError {
   return new GeminiScanError(status, short || `Request failed (${status}).`);
 }
 
+function mapOpenAiFailure(status: number, rawMessage: string): OpenAiScanError {
+  const m = rawMessage.trim();
+  const low = m.toLowerCase();
+  const looksRateLimited =
+    status === 429 || low.includes('rate limit') || low.includes('too many requests');
+
+  if (looksRateLimited) {
+    return new OpenAiScanError(
+      429,
+      'OpenAI rate or usage limit reached. Wait a few minutes, try a cheaper model (gpt-4o-mini), or check billing at platform.openai.com.',
+    );
+  }
+  if (status === 401) {
+    return new OpenAiScanError(401, 'OpenAI API key was rejected. Check EXPO_PUBLIC_OPENAI_API_KEY and restart Expo.');
+  }
+  if (status === 403) {
+    return new OpenAiScanError(403, 'OpenAI denied this request (403). Confirm the key has vision access and billing if required.');
+  }
+  if (status === 400) {
+    const short = m.length > 180 ? `${m.slice(0, 180)}…` : m;
+    return new OpenAiScanError(400, short || 'OpenAI rejected the request (400). Check EXPO_PUBLIC_OPENAI_VISION_MODEL.');
+  }
+  if (status >= 500) {
+    return new OpenAiScanError(status, 'OpenAI is temporarily unavailable. Try again shortly.');
+  }
+  const short = m.length > 220 ? `${m.slice(0, 220)}…` : m;
+  return new OpenAiScanError(status, short || `OpenAI request failed (${status}).`);
+}
+
 type GeminiPart = { text?: string };
 type GeminiResponse = {
   candidates?: Array<{
@@ -91,6 +130,62 @@ function getGeminiApiKey(): string | undefined {
 
 function getGeminiModel(): string {
   return process.env.EXPO_PUBLIC_GEMINI_MODEL?.trim() || DEFAULT_MODEL;
+}
+
+const OPENAI_CHAT_URL = 'https://api.openai.com/v1/chat/completions';
+const DEFAULT_OPENAI_VISION_MODEL = 'gpt-4o-mini';
+
+function getOpenAiApiKey(): string | undefined {
+  const k = process.env.EXPO_PUBLIC_OPENAI_API_KEY?.trim();
+  return k || undefined;
+}
+
+function getOpenAiVisionModel(): string {
+  return process.env.EXPO_PUBLIC_OPENAI_VISION_MODEL?.trim() || DEFAULT_OPENAI_VISION_MODEL;
+}
+
+type ScanProvider = 'openai' | 'gemini';
+
+/** Order of providers to try. OpenAI first when both keys exist unless `EXPO_PUBLIC_INGREDIENT_SCAN_PROVIDER=gemini_first`. */
+function getProviderChain(): ScanProvider[] {
+  const hasO = Boolean(getOpenAiApiKey());
+  const hasG = Boolean(getGeminiApiKey());
+  const raw = process.env.EXPO_PUBLIC_INGREDIENT_SCAN_PROVIDER?.trim().toLowerCase() ?? '';
+
+  if (raw === 'openai') {
+    return hasO ? ['openai'] : hasG ? ['gemini'] : [];
+  }
+  if (raw === 'gemini') {
+    return hasG ? ['gemini'] : hasO ? ['openai'] : [];
+  }
+  if (raw === 'gemini_first') {
+    const c: ScanProvider[] = [];
+    if (hasG) {
+      c.push('gemini');
+    }
+    if (hasO) {
+      c.push('openai');
+    }
+    return c;
+  }
+  const c: ScanProvider[] = [];
+  if (hasO) {
+    c.push('openai');
+  }
+  if (hasG) {
+    c.push('gemini');
+  }
+  return c;
+}
+
+function isProviderFallbackWorthy(e: unknown): boolean {
+  if (e instanceof GeminiScanError && (e.httpStatus === 429 || e.httpStatus >= 500)) {
+    return true;
+  }
+  if (e instanceof OpenAiScanError && (e.httpStatus === 429 || e.httpStatus >= 500)) {
+    return true;
+  }
+  return false;
 }
 
 function guessMimeType(uri: string): string {
@@ -276,39 +371,74 @@ async function geminiScanImage(
   }
 }
 
-async function mockDetect(localImageUri: string): Promise<ScanIngredientItem[]> {
-  const stamp = Date.now();
-  return cloneDefaultScanIngredients().map((row, i) => ({
-    ...row,
-    id: `det-${stamp}-${i}`,
-    imageUri: localImageUri,
-  }));
-}
+type OpenAiChatResponse = {
+  error?: { message?: string };
+  choices?: Array<{ message?: { content?: string | null } }>;
+};
 
-/** True when `EXPO_PUBLIC_GEMINI_API_KEY` is set (real scan vs demo template). */
-export function isGeminiConfigured(): boolean {
-  return Boolean(getGeminiApiKey());
-}
+async function openaiScanImage(
+  apiKey: string,
+  model: string,
+  base64: string,
+  mimeType: string,
+): Promise<string> {
+  const dataUrl = `data:${mimeType};base64,${base64}`;
+  const userText = `${SCAN_PROMPT}\n\nReturn only a JSON object with key "ingredients" (array of {name, detail}). No markdown.`;
 
-/**
- * Reads the image, calls Gemini vision, maps rows to `ScanIngredientItem` (thumbnails = full source photo).
- *
- * - **No API key:** returns demo template ingredients (same as before) so the UI is testable offline.
- * - **With API key:** calls Gemini only. Empty parse, API errors, or network failures **throw** — no silent fake list.
- */
-export async function detectIngredientsFromImage(localImageUri: string): Promise<ScanIngredientItem[]> {
-  const apiKey = getGeminiApiKey();
-  if (!apiKey) {
-    if (__DEV__) {
-      console.warn(
-        '[scan-detect] No EXPO_PUBLIC_GEMINI_API_KEY — using demo ingredients (not from your photo).',
-      );
+  const body = {
+    model,
+    temperature: 0.15,
+    max_tokens: 2048,
+    response_format: { type: 'json_object' },
+    messages: [
+      {
+        role: 'user',
+        content: [
+          { type: 'text', text: userText },
+          {
+            type: 'image_url',
+            image_url: { url: dataUrl, detail: 'low' },
+          },
+        ],
+      },
+    ],
+  };
+
+  const runOnce = async (): Promise<string> => {
+    const res = await fetch(OPENAI_CHAT_URL, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${apiKey}`,
+      },
+      body: JSON.stringify(body),
+    });
+
+    const json = (await res.json()) as OpenAiChatResponse;
+    if (!res.ok) {
+      const raw = json.error?.message ?? JSON.stringify(json).slice(0, 400);
+      throw mapOpenAiFailure(res.status, raw);
     }
-    return mockDetect(localImageUri);
-  }
 
-  const { base64, mimeType } = await imageUriToBase64(localImageUri);
-  const rawText = await geminiScanImage(apiKey, getGeminiModel(), base64, mimeType);
+    const text = json.choices?.[0]?.message?.content?.trim() ?? '';
+    if (!text) {
+      throw new Error('OpenAI returned empty content');
+    }
+    return text;
+  };
+
+  try {
+    return await runOnce();
+  } catch (e) {
+    if (e instanceof OpenAiScanError && e.httpStatus === 429) {
+      await sleepMs(4000);
+      return await runOnce();
+    }
+    throw e;
+  }
+}
+
+function runDetectFromModelResponse(rawText: string, localImageUri: string): ScanIngredientItem[] {
   const parsed = extractJsonObject(rawText);
   const rows = normalizeIngredients(parsed);
   const stamp = Date.now();
@@ -325,4 +455,79 @@ export async function detectIngredientsFromImage(localImageUri: string): Promise
     detail: row.detail,
     imageUri: localImageUri,
   }));
+}
+
+async function mockDetect(localImageUri: string): Promise<ScanIngredientItem[]> {
+  const stamp = Date.now();
+  return cloneDefaultScanIngredients().map((row, i) => ({
+    ...row,
+    id: `det-${stamp}-${i}`,
+    imageUri: localImageUri,
+  }));
+}
+
+/** True when a Gemini key is set. */
+export function isGeminiConfigured(): boolean {
+  return Boolean(getGeminiApiKey());
+}
+
+/** True when either OpenAI or Gemini is configured for vision scan. */
+export function isVisionScanConfigured(): boolean {
+  return Boolean(getOpenAiApiKey() || getGeminiApiKey());
+}
+
+/**
+ * Reads the image, calls OpenAI and/or Gemini vision (see `EXPO_PUBLIC_INGREDIENT_SCAN_PROVIDER`),
+ * maps rows to `ScanIngredientItem` (thumbnails = full source photo).
+ *
+ * - **No API keys:** demo template ingredients.
+ * - **With keys:** tries providers in order; on 429/5xx from one provider, falls back to the other if configured.
+ */
+export async function detectIngredientsFromImage(localImageUri: string): Promise<ScanIngredientItem[]> {
+  const chain = getProviderChain();
+  if (chain.length === 0) {
+    if (__DEV__) {
+      console.warn(
+        '[scan-detect] No EXPO_PUBLIC_OPENAI_API_KEY or EXPO_PUBLIC_GEMINI_API_KEY — using demo ingredients.',
+      );
+    }
+    return mockDetect(localImageUri);
+  }
+
+  const { base64, mimeType } = await imageUriToBase64(localImageUri);
+  let lastError: unknown;
+
+  for (let i = 0; i < chain.length; i++) {
+    const provider = chain[i];
+    try {
+      if (provider === 'openai') {
+        const key = getOpenAiApiKey();
+        if (!key) {
+          continue;
+        }
+        const rawText = await openaiScanImage(key, getOpenAiVisionModel(), base64, mimeType);
+        return runDetectFromModelResponse(rawText, localImageUri);
+      }
+      if (provider === 'gemini') {
+        const key = getGeminiApiKey();
+        if (!key) {
+          continue;
+        }
+        const rawText = await geminiScanImage(key, getGeminiModel(), base64, mimeType);
+        return runDetectFromModelResponse(rawText, localImageUri);
+      }
+    } catch (e) {
+      lastError = e;
+      const hasNext = i < chain.length - 1;
+      if (hasNext && isProviderFallbackWorthy(e)) {
+        if (__DEV__) {
+          console.warn(`[scan-detect] ${provider} scan failed; trying fallback provider:`, e);
+        }
+        continue;
+      }
+      throw e;
+    }
+  }
+
+  throw lastError instanceof Error ? lastError : new Error('Ingredient scan failed.');
 }
