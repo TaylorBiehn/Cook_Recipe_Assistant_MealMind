@@ -18,7 +18,9 @@ import { MealMindColors } from '@/constants/mealmind-colors';
 import { MealMindRadii, MealMindShadow, MealMindSpace } from '@/constants/mealmind-layout';
 import { MealMindFonts, headlineTracking } from '@/constants/mealmind-typography';
 import type { CookingExperience, DietaryPreference, StoredProfile, WellnessGoal } from '@/lib/profile-storage';
-import { clearOnboardingForDev, getProfile, setIntroSeen, setProfile } from '@/lib/profile-storage';
+import { resetAppForDev } from '@/lib/dev-reset';
+import { getProfile, setIntroSeen, setProfile } from '@/lib/profile-storage';
+import { upsertMealMindProfile } from '@/lib/supabase-profile';
 
 type WizardStepId =
   | 'goal'
@@ -298,8 +300,10 @@ export default function IntroWizardScreen() {
       flavorProfile: draft.flavorProfile,
       spicyLevel: draft.spicyLevel,
       calorieFocus: draft.calorieFocus,
+      introWizardComplete: true,
     };
     await setProfile(merged);
+    await upsertMealMindProfile(merged);
     await setIntroSeen();
     router.replace('/');
   }, [draft, router, stepIdx]);
@@ -318,7 +322,7 @@ export default function IntroWizardScreen() {
   }, [skipAll, stepIdx]);
 
   const resetDev = useCallback(async () => {
-    await clearOnboardingForDev();
+    await resetAppForDev();
     setDraft(defaultDraft());
     setStepIdx(0);
     // Keep them on the intro so they can retest immediately.

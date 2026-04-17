@@ -1,14 +1,28 @@
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import { useBottomTabBarHeight } from '@react-navigation/bottom-tabs';
+import { useFocusEffect } from '@react-navigation/native';
 import { Image } from 'expo-image';
 import { useRouter } from 'expo-router';
-import { useState } from 'react';
-import { Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
+import { useCallback, useState } from 'react';
+import {
+  ActionSheetIOS,
+  Alert,
+  Platform,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  View,
+} from 'react-native';
 
 import { ChipRow, GlowButton, MealMindScreen } from '@/components/mealmind';
 import { MealMindColors } from '@/constants/mealmind-colors';
 import { MealMindRadii, MealMindShadow, MealMindSpace } from '@/constants/mealmind-layout';
 import { MealMindFonts, headlineTracking } from '@/constants/mealmind-typography';
+import { showErrorToast } from '@/lib/mealmind-toast';
+import { pickScanImage } from '@/lib/pick-scan-image';
+import { takePendingScanIngredients } from '@/lib/scan-session';
 
 /** ~Tailwind `max-w-2xl` from home mock. */
 const CONTENT_MAX = 672;
@@ -58,6 +72,78 @@ export default function HomeScreen() {
   const [timeId, setTimeId] = useState<string | null>('15');
   const [mealTypeId, setMealTypeId] = useState<string | null>('breakfast');
   const [cookingStyleId, setCookingStyleId] = useState<string | null>(null);
+
+  useFocusEffect(
+    useCallback(() => {
+      const names = takePendingScanIngredients();
+      if (names.length === 0) {
+        return;
+      }
+      setIngredientsInput((prev) => {
+        const parts = prev
+          .split(',')
+          .map((s) => s.trim())
+          .filter(Boolean);
+        const merged = [...new Set([...parts, ...names])];
+        return merged.join(', ');
+      });
+    }, []),
+  );
+
+  const pushScanPreviewWithUri = (uri: string) => {
+    router.push({ pathname: '/scan', params: { imageUri: encodeURIComponent(uri) } });
+  };
+
+  const pushScanReviewWithUri = (uri: string) => {
+    router.push({ pathname: '/scan-review', params: { imageUri: encodeURIComponent(uri) } });
+  };
+
+  const runScanPick = async (source: 'camera' | 'library') => {
+    const { uri, message } = await pickScanImage(source);
+    if (uri) {
+      if (source === 'library') {
+        pushScanReviewWithUri(uri);
+      } else {
+        pushScanPreviewWithUri(uri);
+      }
+      return;
+    }
+    if (message) {
+      showErrorToast(source === 'camera' ? 'Camera' : 'Photo Library', message);
+    }
+  };
+
+  const openIngredientScan = () => {
+    const startCamera = () => {
+      void runScanPick('camera');
+    };
+    const startLibrary = () => {
+      void runScanPick('library');
+    };
+
+    if (Platform.OS === 'ios') {
+      ActionSheetIOS.showActionSheetWithOptions(
+        {
+          options: ['Cancel', 'Take Photo', 'Photo Library'],
+          cancelButtonIndex: 0,
+        },
+        (i) => {
+          if (i === 1) {
+            startCamera();
+          } else if (i === 2) {
+            startLibrary();
+          }
+        },
+      );
+      return;
+    }
+
+    Alert.alert('Scan ingredients', 'Take a photo or pick from your library.', [
+      { text: 'Take Photo', onPress: startCamera },
+      { text: 'Photo Library', onPress: startLibrary },
+      { text: 'Cancel', style: 'cancel' },
+    ]);
+  };
 
   const fabBottom = Math.max(tabBarHeight, 52) + MealMindSpace.md;
 
@@ -110,6 +196,7 @@ export default function HomeScreen() {
                 <Pressable
                   accessibilityRole="button"
                   accessibilityLabel="Add from photo"
+                  onPress={openIngredientScan}
                   style={({ pressed }) => [styles.iconRound, pressed && styles.pressed]}>
                   <MaterialIcons name="photo-camera" size={20} color={MealMindColors.primary} />
                 </Pressable>
