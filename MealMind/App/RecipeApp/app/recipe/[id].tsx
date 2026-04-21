@@ -12,9 +12,10 @@ import { GlowButton, MealMindMainTabFooter, MealMindScreen } from '@/components/
 import { MealMindColors } from '@/constants/mealmind-colors';
 import { MealMindRadii, MealMindShadow, MealMindSpace } from '@/constants/mealmind-layout';
 import { MealMindFonts, headlineTracking } from '@/constants/mealmind-typography';
-import { showErrorToast } from '@/lib/mealmind-toast';
+import { showErrorToast, showSuccessToast } from '@/lib/mealmind-toast';
 import type { MockRecipe } from '@/lib/mealmind-recipe-mocks';
 import { getMockRecipe } from '@/lib/mealmind-recipe-mocks';
+import { isRecipeFavorited, toggleFavoriteRecipe } from '@/lib/favorites-storage';
 import { resolveRecipeTutorialUrl } from '@/lib/recipe-tutorial-video';
 import { getGeneratedRecipeById } from '@/lib/recipe-generation-session';
 
@@ -26,6 +27,8 @@ export default function RecipeDetailScreen() {
   const [recipe, setRecipe] = useState<MockRecipe | null>(null);
   /** Generated recipes must not fall back to design-mock dish photos on load errors. */
   const [useNeutralImageFallbacks, setUseNeutralImageFallbacks] = useState(false);
+  const [favorited, setFavorited] = useState(false);
+  const [savingFavorite, setSavingFavorite] = useState(false);
   const [openingTutorial, setOpeningTutorial] = useState(false);
   const tutorialBusyRef = useRef(false);
 
@@ -69,6 +72,42 @@ export default function RecipeDetailScreen() {
       cancelled = true;
     };
   }, [rawId]);
+
+  useEffect(() => {
+    let cancelled = false;
+    void (async () => {
+      if (!rawId) {
+        setFavorited(false);
+        return;
+      }
+      const on = await isRecipeFavorited(rawId);
+      if (!cancelled) {
+        setFavorited(on);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [rawId]);
+
+  const onToggleFavorite = useCallback(async () => {
+    if (savingFavorite || recipe == null) {
+      return;
+    }
+    setSavingFavorite(true);
+    try {
+      const { nowFavorited } = await toggleFavoriteRecipe(recipe);
+      setFavorited(nowFavorited);
+      showSuccessToast(
+        nowFavorited ? 'Saved to Favorites' : 'Removed from Favorites',
+        nowFavorited ? 'You can find it in the Favorites tab.' : undefined,
+      );
+    } catch (e) {
+      showErrorToast('Favorites', e instanceof Error ? e.message : 'Could not update favorites.');
+    } finally {
+      setSavingFavorite(false);
+    }
+  }, [recipe, savingFavorite]);
 
   if (recipe == null) {
     return (
@@ -233,10 +272,20 @@ export default function RecipeDetailScreen() {
 
         <View style={[styles.bottomBar, { paddingBottom: insets.bottom + MealMindSpace.md }]}>
           <GlowButton
-            label="Save to Favorites"
-            trailing={<MaterialIcons name="favorite" size={22} color={MealMindColors.onPrimary} />}
+            label={favorited ? 'Saved' : 'Save to Favorites'}
+            trailing={
+              savingFavorite ? (
+                <ActivityIndicator color={MealMindColors.onPrimary} />
+              ) : (
+                <MaterialIcons
+                  name={favorited ? 'favorite' : 'favorite-border'}
+                  size={22}
+                  color={MealMindColors.onPrimary}
+                />
+              )
+            }
             style={styles.saveBtn}
-            onPress={() => {}}
+            onPress={onToggleFavorite}
           />
           <Pressable style={styles.timerBtn} accessibilityLabel="Timer">
             <MaterialIcons name="timer" size={26} color={MealMindColors.onSurface} />

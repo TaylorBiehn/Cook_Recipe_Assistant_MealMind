@@ -1,40 +1,49 @@
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
-import { Image } from 'expo-image';
 import { LinearGradient } from 'expo-linear-gradient';
+import { useFocusEffect } from '@react-navigation/native';
 import { useRouter } from 'expo-router';
-import type { ComponentProps } from 'react';
-import { useState } from 'react';
+import { Fragment, useCallback, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 
+import { FallbackRecipeImage } from '@/components/FallbackRecipeImage';
 import { MealMindScreen } from '@/components/mealmind';
 import { MealMindColors } from '@/constants/mealmind-colors';
 import { MealMindRadii, MealMindShadow, MealMindSpace } from '@/constants/mealmind-layout';
 import { MealMindFonts, headlineTracking } from '@/constants/mealmind-typography';
-import { FAVORITE_CARDS, type FavoriteCard } from '@/lib/mealmind-recipe-mocks';
-
-type MetaIcon = NonNullable<FavoriteCard['meta']>[number]['icon'];
+import { getFavoriteEntries, removeFavoriteRecipe, type FavoriteEntry } from '@/lib/favorites-storage';
+import { showErrorToast, showSuccessToast } from '@/lib/mealmind-toast';
 
 const FILTER_CHIPS = ['All Favorites', 'Quick Meals', 'Kid-Friendly', 'Healthy'] as const;
-
-function metaIcon(name: MetaIcon): ComponentProps<typeof MaterialIcons>['name'] {
-  switch (name) {
-    case 'schedule':
-      return 'schedule';
-    case 'local-fire-department':
-      return 'local-fire-department';
-    case 'group':
-      return 'group';
-    default:
-      return 'schedule';
-  }
-}
 
 export default function FavoritesScreen() {
   const router = useRouter();
   const [filter, setFilter] = useState<(typeof FILTER_CHIPS)[number]>('All Favorites');
+  const [entries, setEntries] = useState<FavoriteEntry[]>([]);
 
-  const featured = FAVORITE_CARDS.find((c) => c.featured);
-  const compact = FAVORITE_CARDS.filter((c) => !c.featured);
+  useFocusEffect(
+    useCallback(() => {
+      let alive = true;
+      void getFavoriteEntries().then((list) => {
+        if (alive) setEntries(list);
+      });
+      return () => {
+        alive = false;
+      };
+    }, []),
+  );
+
+  const featured = entries[0];
+  const compact = entries.slice(1);
+
+  const onRemove = useCallback(async (id: string) => {
+    try {
+      await removeFavoriteRecipe(id);
+      setEntries((prev) => prev.filter((e) => e.recipe.id !== id));
+      showSuccessToast('Removed from Favorites');
+    } catch (e) {
+      showErrorToast('Favorites', e instanceof Error ? e.message : 'Could not remove favorite.');
+    }
+  }, []);
 
   return (
     <MealMindScreen scroll={false} contentBottomInset={0} showFooter={false}>
@@ -58,7 +67,7 @@ export default function FavoritesScreen() {
             <View style={styles.pageHead}>
               <View style={styles.pageHeadRow}>
                 <Text style={styles.headline}>Your Favorites</Text>
-                <Text style={styles.count}>12 Recipes</Text>
+                <Text style={styles.count}>{entries.length} Recipes</Text>
               </View>
               <LinearAccent />
             </View>
@@ -79,60 +88,93 @@ export default function FavoritesScreen() {
 
             {featured != null ? (
               <Pressable
-                onPress={() => router.push(`/recipe/${featured.id}`)}
+                onPress={() => router.push(`/recipe/${featured.recipe.id}`)}
                 style={({ pressed }) => [styles.featured, pressed && styles.pressed]}>
                 <View style={styles.featuredImageWrap}>
-                  <Image source={{ uri: featured.image }} style={styles.featuredImage} contentFit="cover" />
+                  <FallbackRecipeImage
+                    uri={featured.recipe.heroImage}
+                    style={styles.featuredImage}
+                    contentFit="cover"
+                    useNeutralFallbacks
+                    stableKey={`${featured.recipe.id}-fav-featured`}
+                  />
                   <LinearGradient colors={['transparent', 'rgba(0,0,0,0.55)']} style={StyleSheet.absoluteFill} />
-                  <Pressable style={styles.fabHeart} hitSlop={8}>
+                  <Pressable
+                    style={styles.fabHeart}
+                    hitSlop={8}
+                    accessibilityRole="button"
+                    accessibilityLabel="Remove from favorites"
+                    onPress={() => void onRemove(featured.recipe.id)}>
                     <MaterialIcons name="favorite" size={22} color={MealMindColors.primary} />
                   </Pressable>
                 </View>
                 <View style={styles.featuredBody}>
                   <View style={styles.badgeRow}>
-                    {featured.badges.map((b) => (
-                      <View key={b.label} style={[styles.badge, badgeStyle(b.variant)]}>
-                        <Text style={[styles.badgeText, badgeTextStyle(b.variant)]}>{b.label}</Text>
+                    {featured.recipe.tags.slice(0, 2).map((t) => (
+                      <View key={t.label} style={[styles.badge, badgeStyle(t.variant === 'tertiary' ? 'tertiary' : 'primary')]}>
+                        <Text style={[styles.badgeText, badgeTextStyle(t.variant === 'tertiary' ? 'tertiary' : 'primary')]}>{t.label}</Text>
                       </View>
                     ))}
                   </View>
-                  <Text style={styles.featuredTitle}>{featured.title}</Text>
-                  {featured.blurb != null ? <Text style={styles.featuredBlurb}>{featured.blurb}</Text> : null}
+                  <Text style={styles.featuredTitle}>{featured.recipe.title}</Text>
+                  <Text style={styles.featuredBlurb} numberOfLines={2}>
+                    {featured.recipe.subtitle}
+                  </Text>
                 </View>
               </Pressable>
             ) : null}
 
-            <View style={styles.grid}>
-              {compact.map((card) => (
-                <Pressable
-                  key={card.id}
-                  onPress={() => router.push(`/recipe/${card.id}`)}
-                  style={({ pressed }) => [styles.compactCard, pressed && styles.pressed]}>
-                  <View style={styles.squareImgWrap}>
-                    <Image source={{ uri: card.image }} style={styles.squareImg} contentFit="cover" />
-                    <Pressable style={styles.fabHeartSm} hitSlop={8}>
-                      <MaterialIcons name="favorite" size={20} color={MealMindColors.primary} />
-                    </Pressable>
-                  </View>
-                  <View style={styles.compactBody}>
-                    {card.badges[0] != null ? (
-                      <Text style={styles.compactKicker}>{card.badges[0].label}</Text>
-                    ) : null}
-                    <Text style={styles.compactTitle}>{card.title}</Text>
-                    {card.meta != null ? (
+            {compact.length > 0 ? (
+              <View style={styles.grid}>
+                {compact.map((entry) => (
+                  <Pressable
+                    key={entry.recipe.id}
+                    onPress={() => router.push(`/recipe/${entry.recipe.id}`)}
+                    style={({ pressed }) => [styles.compactCard, pressed && styles.pressed]}>
+                    <View style={styles.squareImgWrap}>
+                      <FallbackRecipeImage
+                        uri={entry.recipe.heroImage}
+                        style={styles.squareImg}
+                        contentFit="cover"
+                        useNeutralFallbacks
+                        stableKey={`${entry.recipe.id}-fav`}
+                      />
+                      <Pressable
+                        style={styles.fabHeartSm}
+                        hitSlop={8}
+                        accessibilityRole="button"
+                        accessibilityLabel="Remove from favorites"
+                        onPress={() => void onRemove(entry.recipe.id)}>
+                        <MaterialIcons name="favorite" size={20} color={MealMindColors.primary} />
+                      </Pressable>
+                    </View>
+                    <View style={styles.compactBody}>
+                      {entry.recipe.tags[0] != null ? (
+                        <Text style={styles.compactKicker}>{entry.recipe.tags[0].label}</Text>
+                      ) : null}
+                      <Text style={styles.compactTitle}>{entry.recipe.title}</Text>
                       <View style={styles.compactMeta}>
-                        {card.meta.map((m) => (
-                          <View key={m.text} style={styles.metaItem}>
-                            <MaterialIcons name={metaIcon(m.icon)} size={14} color={MealMindColors.onSurfaceVariant} />
-                            <Text style={styles.metaXs}>{m.text}</Text>
-                          </View>
-                        ))}
+                        <View style={styles.metaItem}>
+                          <MaterialIcons name="schedule" size={14} color={MealMindColors.onSurfaceVariant} />
+                          <Text style={styles.metaXs}>{entry.recipe.timeLabel}</Text>
+                        </View>
+                        <View style={styles.metaItem}>
+                          <MaterialIcons name="local-fire-department" size={14} color={MealMindColors.onSurfaceVariant} />
+                          <Text style={styles.metaXs}>{entry.recipe.kcalLabel}</Text>
+                        </View>
                       </View>
-                    ) : null}
-                  </View>
-                </Pressable>
-              ))}
-            </View>
+                    </View>
+                  </Pressable>
+                ))}
+              </View>
+            ) : entries.length === 0 ? (
+              <Fragment>
+                <Text style={styles.emptyTitle}>No favorites yet</Text>
+                <Text style={styles.emptyBody}>
+                  Open a recipe and tap “Save to Favorites”. Your saved recipes will show up here.
+                </Text>
+              </Fragment>
+            ) : null}
           </View>
         </ScrollView>
       </View>
@@ -144,7 +186,9 @@ function LinearAccent() {
   return <View style={styles.accentBar} />;
 }
 
-function badgeStyle(variant: FavoriteCard['badges'][number]['variant']) {
+type FavBadgeVariant = 'primary' | 'tertiary';
+
+function badgeStyle(variant: FavBadgeVariant) {
   switch (variant) {
     case 'tertiary':
       return { backgroundColor: MealMindColors.tertiaryFixed };
@@ -155,7 +199,7 @@ function badgeStyle(variant: FavoriteCard['badges'][number]['variant']) {
   }
 }
 
-function badgeTextStyle(variant: FavoriteCard['badges'][number]['variant']) {
+function badgeTextStyle(variant: FavBadgeVariant) {
   switch (variant) {
     case 'tertiary':
       return { color: MealMindColors.onTertiaryFixed };
@@ -312,6 +356,19 @@ const styles = StyleSheet.create({
     fontSize: 10,
     letterSpacing: 1.5,
     textTransform: 'uppercase',
+  },
+  emptyTitle: {
+    fontFamily: MealMindFonts.headlineBold,
+    fontSize: 22,
+    color: MealMindColors.onSurface,
+    marginTop: MealMindSpace.lg,
+  },
+  emptyBody: {
+    fontFamily: MealMindFonts.body,
+    fontSize: 14,
+    lineHeight: 20,
+    color: MealMindColors.onSurfaceVariant,
+    maxWidth: 520,
   },
   featuredTitle: {
     fontFamily: MealMindFonts.headlineBold,

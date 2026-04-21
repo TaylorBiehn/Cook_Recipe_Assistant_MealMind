@@ -61,6 +61,16 @@ export function showAuthSuccessToast(text1: string, text2?: string): void {
   });
 }
 
+export function showSuccessToast(text1: string, text2?: string): void {
+  Toast.show({
+    type: 'success',
+    text1,
+    text2,
+    visibilityTime: 2600,
+    topOffset: 56,
+  });
+}
+
 export function showErrorToast(text1: string, text2?: string): void {
   Toast.show({
     type: 'error',
