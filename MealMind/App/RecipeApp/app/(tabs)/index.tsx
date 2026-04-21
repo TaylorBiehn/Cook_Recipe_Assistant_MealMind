@@ -354,10 +354,7 @@ export default function HomeScreen() {
           </View>
         </ScrollView>
 
-        {/* Full-area overlay so `flex-end` pins the CTA above the tab bar on web + native. */}
-        <View
-          pointerEvents="box-none"
-          style={[StyleSheet.absoluteFillObject, styles.fabOverlay, { paddingBottom: fabBottom }]}>
+        <View pointerEvents="box-none" style={[styles.fabOverlay, { paddingBottom: fabBottom }]}>
           <View style={styles.fabInner}>
             <GlowButton
               label="Find My Meal"
@@ -613,9 +610,17 @@ const styles = StyleSheet.create({
     color: 'rgba(255,255,255,0.85)',
   },
   fabOverlay: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    bottom: 0,
     justifyContent: 'flex-end',
     alignItems: 'center',
+    paddingTop: MealMindSpace.md,
     paddingHorizontal: MealMindSpace.lg,
+    backgroundColor: `${MealMindColors.surface}F2`,
+    borderTopWidth: StyleSheet.hairlineWidth,
+    borderTopColor: `${MealMindColors.outlineVariant}26`,
     zIndex: 20,
   },
   fabInner: {
