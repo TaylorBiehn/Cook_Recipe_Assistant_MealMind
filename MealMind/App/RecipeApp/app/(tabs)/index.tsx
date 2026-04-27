@@ -16,55 +16,53 @@ import {
   View,
 } from 'react-native';
 
-import { ChipRow, GlowButton, MealMindScreen } from '@/components/mealmind';
+import { ChipRow, GlowButton, MealMindScreen, ProfileMenuButton } from '@/components/mealmind';
 import { MealMindColors } from '@/constants/mealmind-colors';
 import { MealMindRadii, MealMindShadow, MealMindSpace } from '@/constants/mealmind-layout';
 import { MealMindFonts, headlineTracking } from '@/constants/mealmind-typography';
+import {
+  COOKING_STYLE_CHIPS,
+  COOKING_TIME_CHIPS,
+  MEAL_TYPE_CHIPS,
+} from '@/lib/meal-taxonomy';
 import { showErrorToast } from '@/lib/mealmind-toast';
 import { pickScanImage } from '@/lib/pick-scan-image';
+import { fetchRecentIngredients, type RecentIngredient } from '@/lib/recent-ingredients-api';
 import { setPendingRecipeSearch } from '@/lib/recipe-generation-session';
 import { takePendingScanIngredients } from '@/lib/scan-session';
 
 /** ~Tailwind `max-w-2xl` from home mock. */
 const CONTENT_MAX = 672;
 
-const TIME_CHIPS = [
-  { id: '15', label: '<15 min' },
-  { id: '30', label: '15-30 min' },
-  { id: '45', label: '30+ min' },
-];
-
-const MEAL_TYPE_CHIPS = [
-  { id: 'breakfast', label: 'Breakfast' },
-  { id: 'lunch', label: 'Lunch' },
-  { id: 'dinner', label: 'Dinner' },
-  { id: 'snacks', label: 'Snacks' },
-];
-
-const COOKING_STYLE_CHIPS = [
-  { id: 'quick', label: 'Quick Meals' },
-  { id: 'family', label: 'Family Meals' },
-  { id: 'budget', label: 'Budget Friendly' },
-  { id: 'healthy', label: 'Healthy' },
-];
-
-const RECENT_COOKBOOKS = [
-  {
-    id: 'autumn-stew',
-    date: 'Oct 24, 2023',
-    title: 'Autumn Stew Night',
-    tags: ['Beef Chuck', 'Carrots', 'Red Wine', 'Thyme'],
-  },
-  {
-    id: 'quick-pasta',
-    date: 'Yesterday',
-    title: 'Quick Pasta Dinner',
-    tags: ['Penne', 'Zucchini', 'Parmesan', 'Lemon'],
-  },
-] as const;
+const RECENT_INITIAL_COUNT = 4;
+const RECENT_REVEAL_STEP = 3;
 
 const RECOMMENDED_IMAGE =
   'https://lh3.googleusercontent.com/aida-public/AB6AXuCUYrigExE_1p27TyKw-Dzrul_Fo6P2M4pAbBPVHjgW-UEoiIiLtdcM7Vkr_JwM-4RJYgD25yLR62o3KiqHZ1pltianwOLn_jdqbliqE46QDa8fTDBfsndoaaYq_PTJscR5n5Vbhz0_YCQQJXVEa6F9CnW0bWcIDkPotOXMxuklkA6q-BZhKqIWCyz3S6nipJKpVeMVz3kBdF0XQPT-roApjEAuiT0BN0ySZdVuGTimffjDlxy7CGd0tPJEHzPmo639v8kwWRVlM78';
+
+function formatLastUsed(iso: string): string {
+  const at = Date.parse(iso);
+  if (!Number.isFinite(at)) {
+    return 'Recently';
+  }
+  const diffMs = Date.now() - at;
+  const dayMs = 24 * 60 * 60 * 1000;
+  if (diffMs < dayMs) {
+    return 'Today';
+  }
+  if (diffMs < dayMs * 2) {
+    return 'Yesterday';
+  }
+  const days = Math.floor(diffMs / dayMs);
+  if (days < 7) {
+    return `${days} days ago`;
+  }
+  const weeks = Math.floor(days / 7);
+  if (weeks < 5) {
+    return weeks === 1 ? 'Last week' : `${weeks} weeks ago`;
+  }
+  return 'A while ago';
+}
 
 export default function HomeScreen() {
   const router = useRouter();
@@ -73,12 +71,49 @@ export default function HomeScreen() {
   const [timeId, setTimeId] = useState<string | null>('15');
   const [mealTypeId, setMealTypeId] = useState<string | null>('breakfast');
   const [cookingStyleId, setCookingStyleId] = useState<string | null>(null);
+  const [recentVisible, setRecentVisible] = useState<number>(RECENT_INITIAL_COUNT);
+  const [recentIngredients, setRecentIngredients] = useState<RecentIngredient[]>([]);
+
+  const loadRecentIngredients = useCallback(() => {
+    let alive = true;
+    void fetchRecentIngredients(50).then((list) => {
+      if (!alive) {
+        return;
+      }
+      setRecentIngredients(list);
+      setRecentVisible((prev) => Math.min(Math.max(RECENT_INITIAL_COUNT, prev), Math.max(RECENT_INITIAL_COUNT, list.length)));
+    });
+    return () => {
+      alive = false;
+    };
+  }, []);
+
+  const appendIngredient = useCallback((name: string) => {
+    setIngredientsInput((prev) => {
+      const parts = prev
+        .split(',')
+        .map((s) => s.trim())
+        .filter(Boolean);
+      if (parts.some((p) => p.toLowerCase() === name.toLowerCase())) {
+        return prev;
+      }
+      return [...parts, name].join(', ');
+    });
+  }, []);
+
+  const showMoreRecent = useCallback(() => {
+    setRecentVisible((v) => Math.min(recentIngredients.length, v + RECENT_REVEAL_STEP));
+  }, [recentIngredients.length]);
+
+  const visibleRecent = recentIngredients.slice(0, recentVisible);
+  const canShowMoreRecent = recentVisible < recentIngredients.length;
 
   useFocusEffect(
     useCallback(() => {
+      const cleanupRecent = loadRecentIngredients();
       const names = takePendingScanIngredients();
       if (names.length === 0) {
-        return;
+        return cleanupRecent;
       }
       setIngredientsInput((prev) => {
         const parts = prev
@@ -88,7 +123,8 @@ export default function HomeScreen() {
         const merged = [...new Set([...parts, ...names])];
         return merged.join(', ');
       });
-    }, []),
+      return cleanupRecent;
+    }, [loadRecentIngredients]),
   );
 
   const pushScanPreviewWithUri = (uri: string) => {
@@ -154,7 +190,7 @@ export default function HomeScreen() {
       .map((s) => s.trim())
       .filter(Boolean);
     const mealTypeLabel = MEAL_TYPE_CHIPS.find((c) => c.id === mealTypeId)?.label ?? '';
-    const cookingTimeLabel = TIME_CHIPS.find((c) => c.id === timeId)?.label ?? '';
+    const cookingTimeLabel = COOKING_TIME_CHIPS.find((c) => c.id === timeId)?.label ?? '';
     const cookingStyleLabel = COOKING_STYLE_CHIPS.find((c) => c.id === cookingStyleId)?.label ?? '';
     void setPendingRecipeSearch({
       ingredients,
@@ -168,19 +204,11 @@ export default function HomeScreen() {
     <MealMindScreen scroll={false} contentBottomInset={0} showFooter={false}>
       <View style={styles.shell}>
         <View style={styles.topBar}>
-          <View style={styles.topBarRow}>
-            <Pressable
-              accessibilityRole="button"
-              accessibilityLabel="Open menu"
-              hitSlop={12}
-              style={({ pressed }) => [styles.iconBtn, pressed && styles.pressed]}>
-              <MaterialIcons name="menu" size={24} color={MealMindColors.primary} />
-            </Pressable>
-            <Text style={styles.topBarTitle}>Culinary Curator</Text>
+          <View style={styles.topBarTitleCol}>
+            <Text style={styles.topBarKicker}>Cooking Assistant</Text>
+            <Text style={styles.topBarTitle}>MealMind</Text>
           </View>
-          <View style={styles.avatarWell}>
-            <MaterialIcons name="account-circle" size={26} color={MealMindColors.primary} />
-          </View>
+          <ProfileMenuButton />
         </View>
 
         <ScrollView
@@ -190,8 +218,8 @@ export default function HomeScreen() {
           showsVerticalScrollIndicator={false}>
           <View style={styles.formMax}>
             <View style={styles.hero}>
-              <Text style={styles.headline}>{"What's in your kitchen?"}</Text>
-              <Text style={styles.subhead}>Add ingredients to discover your next family meal.</Text>
+              <Text style={styles.headline}>What should we cook today?</Text>
+              <Text style={styles.subhead}>Add ingredients and we’ll pick meals your family will love.</Text>
             </View>
 
             <View style={styles.searchRow}>
@@ -204,12 +232,6 @@ export default function HomeScreen() {
                 style={styles.searchInput}
               />
               <View style={styles.inputActions}>
-                <Pressable
-                  accessibilityRole="button"
-                  accessibilityLabel="Voice input"
-                  style={({ pressed }) => [styles.iconRound, pressed && styles.pressed]}>
-                  <MaterialIcons name="mic" size={20} color={MealMindColors.primary} />
-                </Pressable>
                 <Pressable
                   accessibilityRole="button"
                   accessibilityLabel="Add from photo"
@@ -237,7 +259,7 @@ export default function HomeScreen() {
               />
               <ChipRow
                 sectionLabel="Cooking Time"
-                chips={TIME_CHIPS}
+                chips={COOKING_TIME_CHIPS}
                 selectedId={timeId}
                 onSelect={setTimeId}
                 edgeBleed
@@ -247,42 +269,47 @@ export default function HomeScreen() {
             <View style={styles.historySection}>
               <View style={styles.historyHeader}>
                 <View>
-                  <Text style={styles.historyTitle}>Recent Cookbooks</Text>
-                  <Text style={styles.historySub}>Ingredients you used recently</Text>
+                  <Text style={styles.historyTitle}>Recent Ingredients</Text>
+                  <Text style={styles.historySub}>Tap + to add to your list</Text>
                 </View>
-                <Pressable accessibilityRole="button" accessibilityLabel="Clear all history">
-                  <Text style={styles.clearAll}>Clear all</Text>
-                </Pressable>
               </View>
 
-              {RECENT_COOKBOOKS.map((item) => (
-                <View key={item.id} style={styles.historyCard}>
-                  <View style={styles.historyCardHeader}>
-                    <View>
-                      <Text style={styles.historyDate}>{item.date}</Text>
-                      <Text style={styles.historyCardTitle}>{item.title}</Text>
+              <View style={styles.recentList}>
+                {visibleRecent.map((item, idx) => (
+                  <View
+                    key={item.name}
+                    style={[styles.recentRow, idx === visibleRecent.length - 1 && styles.recentRowLast]}>
+                    <View style={styles.recentRowLeft}>
+                      <View style={styles.recentBullet}>
+                        <MaterialIcons name="restaurant" size={16} color={MealMindColors.onSecondaryContainer} />
+                      </View>
+                      <View style={styles.recentTextWrap}>
+                        <Text style={styles.recentName}>{item.name}</Text>
+                        <Text style={styles.recentDate}>{formatLastUsed(item.lastUsedAt)}</Text>
+                      </View>
                     </View>
                     <Pressable
                       accessibilityRole="button"
-                      accessibilityLabel={`Reuse ingredients from ${item.title}`}
-                      style={({ pressed }) => [styles.reuseBtn, pressed && styles.pressed]}>
-                      <MaterialIcons name="add-circle" size={20} color={MealMindColors.primary} />
+                      accessibilityLabel={`Add ${item.name} to ingredients`}
+                      onPress={() => appendIngredient(item.name)}
+                      hitSlop={8}
+                      style={({ pressed }) => [styles.addBtn, pressed && styles.pressed]}>
+                      <MaterialIcons name="add" size={20} color={MealMindColors.primary} />
                     </Pressable>
                   </View>
-                  <View style={styles.historyTags}>
-                    {item.tags.map((tag) => (
-                      <View key={tag} style={styles.historyTag}>
-                        <Text style={styles.historyTagText}>{tag}</Text>
-                      </View>
-                    ))}
-                  </View>
-                </View>
-              ))}
-
-              <View style={[styles.historyCard, styles.historyMoreCard]}>
-                <MaterialIcons name="history" size={20} color={MealMindColors.outline} />
-                <Text style={styles.historyMoreText}>View Full History</Text>
+                ))}
               </View>
+
+              {canShowMoreRecent ? (
+                <Pressable
+                  accessibilityRole="button"
+                  accessibilityLabel="View more recent ingredients"
+                  onPress={showMoreRecent}
+                  style={({ pressed }) => [styles.viewMoreCard, pressed && styles.pressed]}>
+                  <MaterialIcons name="expand-more" size={20} color={MealMindColors.primary} />
+                  <Text style={styles.viewMoreText}>View Full History</Text>
+                </Pressable>
+              ) : null}
             </View>
 
             <View style={styles.recommendWrap}>
@@ -334,10 +361,17 @@ const styles = StyleSheet.create({
     backgroundColor: `${MealMindColors.surface}CC`,
     ...MealMindShadow.ambient,
   },
-  topBarRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: MealMindSpace.sm,
+  topBarTitleCol: {
+    flex: 1,
+    minWidth: 0,
+  },
+  topBarKicker: {
+    fontFamily: MealMindFonts.labelSemibold,
+    fontSize: 11,
+    letterSpacing: 1.4,
+    textTransform: 'uppercase',
+    color: MealMindColors.onSurfaceVariant,
+    marginBottom: 2,
   },
   topBarTitle: {
     fontFamily: MealMindFonts.headlineExtraBold,
@@ -345,21 +379,8 @@ const styles = StyleSheet.create({
     letterSpacing: headlineTracking,
     color: MealMindColors.primary,
   },
-  iconBtn: {
-    padding: 6,
-  },
   pressed: {
     opacity: 0.75,
-  },
-  avatarWell: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: MealMindColors.surfaceContainerHigh,
-    borderWidth: 2,
-    borderColor: `${MealMindColors.primary}1A`,
-    alignItems: 'center',
-    justifyContent: 'center',
   },
   scroll: {
     flex: 1,
@@ -449,68 +470,79 @@ const styles = StyleSheet.create({
     fontSize: 13,
     color: MealMindColors.primary,
   },
-  historyCard: {
+  recentList: {
     backgroundColor: MealMindColors.surfaceContainerLow,
     borderRadius: MealMindRadii.md,
-    padding: MealMindSpace.lg,
-    gap: MealMindSpace.md,
+    paddingVertical: MealMindSpace.sm,
+    paddingHorizontal: MealMindSpace.md,
   },
-  historyCardHeader: {
+  recentRow: {
     flexDirection: 'row',
+    alignItems: 'center',
     justifyContent: 'space-between',
-    alignItems: 'flex-start',
     gap: MealMindSpace.md,
+    paddingVertical: MealMindSpace.sm + 2,
+    paddingHorizontal: MealMindSpace.sm,
+    borderBottomWidth: StyleSheet.hairlineWidth,
+    borderBottomColor: `${MealMindColors.outlineVariant}26`,
   },
-  historyDate: {
-    fontFamily: MealMindFonts.labelSemibold,
-    fontSize: 11,
-    textTransform: 'uppercase',
-    color: MealMindColors.outline,
+  recentRowLast: {
+    borderBottomWidth: 0,
   },
-  historyCardTitle: {
-    marginTop: 4,
-    fontFamily: MealMindFonts.headlineBold,
-    fontSize: 20,
-    color: MealMindColors.onSurface,
+  recentRowLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: MealMindSpace.md,
+    flex: 1,
+    minWidth: 0,
   },
-  reuseBtn: {
+  recentBullet: {
     width: 32,
     height: 32,
     borderRadius: 16,
+    backgroundColor: MealMindColors.secondaryContainer,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  recentTextWrap: {
+    flex: 1,
+    minWidth: 0,
+  },
+  recentName: {
+    fontFamily: MealMindFonts.bodyMedium,
+    fontSize: 15,
+    color: MealMindColors.onSurface,
+  },
+  recentDate: {
+    marginTop: 2,
+    fontFamily: MealMindFonts.body,
+    fontSize: 12,
+    color: MealMindColors.onSurfaceVariant,
+  },
+  addBtn: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
     alignItems: 'center',
     justifyContent: 'center',
     backgroundColor: `${MealMindColors.primaryContainer}33`,
   },
-  historyTags: {
+  viewMoreCard: {
     flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 8,
-  },
-  historyTag: {
-    backgroundColor: MealMindColors.surfaceContainerLowest,
-    borderRadius: MealMindRadii.full,
-    paddingHorizontal: MealMindSpace.md,
-    paddingVertical: 6,
-  },
-  historyTagText: {
-    fontFamily: MealMindFonts.bodyMedium,
-    fontSize: 12,
-    color: MealMindColors.onSurfaceVariant,
-  },
-  historyMoreCard: {
     alignItems: 'center',
     justifyContent: 'center',
+    gap: 6,
+    paddingVertical: MealMindSpace.md,
+    borderRadius: MealMindRadii.md,
     borderWidth: 1,
     borderStyle: 'dashed',
     borderColor: `${MealMindColors.outlineVariant}66`,
     backgroundColor: MealMindColors.surfaceContainerLow,
-    minHeight: 96,
   },
-  historyMoreText: {
-    marginTop: 6,
+  viewMoreText: {
     fontFamily: MealMindFonts.labelSemibold,
     fontSize: 14,
-    color: MealMindColors.onSurfaceVariant,
+    color: MealMindColors.primary,
   },
   recommendWrap: {
     height: 256,

@@ -1,16 +1,8 @@
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
-import { LinearGradient } from 'expo-linear-gradient';
 import { Image } from 'expo-image';
 import { useRouter } from 'expo-router';
 import { useEffect, useRef, useState } from 'react';
-import {
-  Animated,
-  Dimensions,
-  Easing,
-  StyleSheet,
-  Text,
-  View,
-} from 'react-native';
+import { Animated, Easing, StyleSheet, Text, View } from 'react-native';
 
 import { MealMindFlowHeader, MealMindScreen } from '@/components/mealmind';
 import { MealMindColors } from '@/constants/mealmind-colors';
@@ -19,30 +11,25 @@ import { MealMindFonts, headlineTracking } from '@/constants/mealmind-typography
 import { generateRecipesFromContext } from '@/lib/ai-recipe-generate';
 import { showErrorToast } from '@/lib/mealmind-toast';
 import { getProfile } from '@/lib/profile-storage';
+import { recordRecentIngredients } from '@/lib/recent-ingredients-api';
 import {
   clearLastGeneratedRecipes,
   setLastGeneratedRecipes,
   takePendingRecipeSearch,
 } from '@/lib/recipe-generation-session';
 
-const CONTENT_MAX = 448;
-const MIN_SPIN_MS = 1000;
-const PROGRESS_MS = 2000;
+const CONTENT_MAX = 420;
+const MIN_SPIN_MS = 1200;
+const PROGRESS_MS = 2200;
 
-const HERO_BG =
+const HERO_IMG =
   'https://lh3.googleusercontent.com/aida-public/AB6AXuB9xFzJHF0x0V0ScQgCmZK48mGTKS-FoQI3rkh8Du332MaX7Iv69QxLiut_01IF1ee7jfFpKFvCx3mGJO2ip21Cgw47SGZVBLo_WbOUeQAfg-AtVPpXcttSOT3V3OLUtruvjW61B9CSpSkKNkhietM-10ZTFuqR75aloqjdD3igXj_Vmt6bKWlHGHbqy4mBhsh_8239Q_J02mAoNB3giG1E855dR32msh39SXJrpAzGRhoPN4O2OxEIUCZ1m28tYHiTi90Kzxnga4M';
 
 export default function LoadingScreen() {
   const router = useRouter();
-  const [percentLabel, setPercentLabel] = useState(0);
+  const [pct, setPct] = useState(0);
   const floatY = useRef(new Animated.Value(0)).current;
   const progress = useRef(new Animated.Value(0)).current;
-  const shimmerX = useRef(new Animated.Value(0)).current;
-  const pulse = useRef(new Animated.Value(1)).current;
-
-  const winW = Dimensions.get('window').width;
-  const horizontalPad = MealMindSpace.lg * 2;
-  const trackW = Math.min(CONTENT_MAX, Math.max(0, winW - horizontalPad));
 
   useEffect(() => {
     let cancelled = false;
@@ -60,6 +47,11 @@ export default function LoadingScreen() {
               cookingStyleLabel: pending.cookingStyleLabel,
               searchContext: pending,
             });
+            try {
+              await recordRecentIngredients(pending.ingredients);
+            } catch {
+              // Keep recipe flow resilient when backend history is unavailable.
+            }
             for (const r of recipes) {
               const u = r.heroImage?.trim();
               if (u?.startsWith('http')) {
@@ -106,8 +98,8 @@ export default function LoadingScreen() {
     );
     floatLoop.start();
 
-    const progressListener = progress.addListener(({ value }) => {
-      setPercentLabel(Math.min(100, Math.round(value * 100)));
+    const sub = progress.addListener(({ value }) => {
+      setPct(Math.min(100, Math.round(value * 100)));
     });
 
     Animated.timing(progress, {
@@ -117,131 +109,50 @@ export default function LoadingScreen() {
       useNativeDriver: false,
     }).start();
 
-    const shimmerLoop = Animated.loop(
-      Animated.timing(shimmerX, {
-        toValue: 1,
-        duration: 2000,
-        easing: Easing.linear,
-        useNativeDriver: true,
-      }),
-    );
-    shimmerLoop.start();
-
-    const pulseLoop = Animated.loop(
-      Animated.sequence([
-        Animated.timing(pulse, {
-          toValue: 0.35,
-          duration: 700,
-          easing: Easing.inOut(Easing.ease),
-          useNativeDriver: true,
-        }),
-        Animated.timing(pulse, {
-          toValue: 1,
-          duration: 700,
-          easing: Easing.inOut(Easing.ease),
-          useNativeDriver: true,
-        }),
-      ]),
-    );
-    pulseLoop.start();
-
     return () => {
-      progress.removeListener(progressListener);
+      progress.removeListener(sub);
       floatLoop.stop();
-      shimmerLoop.stop();
-      pulseLoop.stop();
     };
-  }, [floatY, progress, pulse, shimmerX]);
+  }, [floatY, progress]);
 
-  const floatTranslate = floatY.interpolate({
+  const translateY = floatY.interpolate({
     inputRange: [0, 1],
-    outputRange: [0, -10],
+    outputRange: [0, -8],
   });
 
   const fillWidth = progress.interpolate({
     inputRange: [0, 1],
-    outputRange: [0, trackW],
-  });
-
-  const shimmerTranslate = shimmerX.interpolate({
-    inputRange: [0, 1],
-    outputRange: [-trackW * 0.8, trackW * 1.2],
+    outputRange: ['0%', '100%'],
   });
 
   return (
     <MealMindScreen scroll={false} contentBottomInset={0}>
       <View style={styles.shell}>
-        <MealMindFlowHeader title="Smart Family Recipe Assistant" showBottomDivider />
+        <MealMindFlowHeader title="Meal Planner" showBottomDivider />
 
         <View style={styles.main}>
-          <View style={styles.blobTop} pointerEvents="none" />
-          <View style={styles.blobBottom} pointerEvents="none" />
-
           <View style={styles.column}>
-            <Animated.View style={[styles.heroCluster, { transform: [{ translateY: floatTranslate }] }]}>
+            <Animated.View style={[styles.heroWrap, { transform: [{ translateY }] }]}>
               <View style={styles.heroFrame}>
-                <Image source={{ uri: HERO_BG }} style={styles.heroBgImage} contentFit="cover" />
-                <LinearGradient
-                  colors={[MealMindColors.primary, MealMindColors.primaryContainer]}
-                  start={{ x: 0, y: 0 }}
-                  end={{ x: 1, y: 1 }}
-                  style={styles.heroOrb}>
-                  <MaterialIcons name="restaurant" size={56} color={MealMindColors.onPrimary} />
-                </LinearGradient>
-              </View>
-
-              <View style={[styles.satCard, styles.satTopRight, MealMindShadow.ambient]}>
-                <MaterialIcons name="set-meal" size={32} color={MealMindColors.onSecondaryContainer} />
-              </View>
-              <View style={[styles.satCard, styles.satBottomLeft, { backgroundColor: MealMindColors.tertiaryFixed }, MealMindShadow.ambient]}>
-                <MaterialIcons name="local-fire-department" size={32} color={MealMindColors.onTertiaryFixed} />
+                <Image source={{ uri: HERO_IMG }} style={styles.heroImg} contentFit="cover" />
               </View>
             </Animated.View>
 
-            <View style={styles.copyBlock}>
-              <Text style={styles.title}>Finding the best meals for you...</Text>
-              <Text style={styles.subtitle}>
-                {"We're curating recipes that match your family's taste and dietary preferences."}
-              </Text>
-            </View>
+            <Text style={styles.title}>Finding the best meals for you</Text>
+            <Text style={styles.subtitle}>
+              Matching recipes to your ingredients, taste, and time available.
+            </Text>
 
             <View style={styles.progressBlock}>
-              <View style={[styles.track, { width: trackW }]}>
-                <Animated.View style={[styles.fillWrap, { width: fillWidth }]}>
-                  <LinearGradient
-                    colors={[MealMindColors.primary, MealMindColors.primaryContainer]}
-                    start={{ x: 0, y: 0.5 }}
-                    end={{ x: 1, y: 0.5 }}
-                    style={StyleSheet.absoluteFill}
-                  />
-                  <Animated.View
-                    style={[
-                      styles.shimmerStripe,
-                      {
-                        transform: [{ translateX: shimmerTranslate }],
-                      },
-                    ]}
-                  />
-                </Animated.View>
+              <View style={styles.track}>
+                <Animated.View style={[styles.fill, { width: fillWidth }]} />
               </View>
-
               <View style={styles.progressMeta}>
                 <View style={styles.statusLeft}>
-                  <Animated.View style={[styles.pulseDot, { opacity: pulse }]} />
-                  <Text style={styles.statusLabel}>Analyzing pantry items</Text>
+                  <MaterialIcons name="auto-awesome" size={16} color={MealMindColors.primary} />
+                  <Text style={styles.statusLabel}>Curating your plate</Text>
                 </View>
-                <Text style={styles.percent}>{percentLabel}%</Text>
-              </View>
-            </View>
-
-            <View style={styles.skeletonGrid}>
-              <View style={styles.skeletonCard}>
-                <MaterialIcons name="eco" size={28} color={MealMindColors.secondary} />
-                <View style={styles.skeletonBar} />
-              </View>
-              <View style={styles.skeletonCard}>
-                <MaterialIcons name="timer" size={28} color={MealMindColors.secondary} />
-                <View style={styles.skeletonBar} />
+                <Text style={styles.percent}>{pct}%</Text>
               </View>
             </View>
           </View>
@@ -255,179 +166,86 @@ const styles = StyleSheet.create({
   shell: {
     flex: 1,
     backgroundColor: MealMindColors.surface,
-    overflow: 'hidden',
   },
   main: {
     flex: 1,
-    position: 'relative',
     justifyContent: 'center',
     alignItems: 'center',
     paddingHorizontal: MealMindSpace.lg,
-  },
-  blobTop: {
-    position: 'absolute',
-    top: 80,
-    left: 40,
-    width: 256,
-    height: 256,
-    borderRadius: 128,
-    backgroundColor: MealMindColors.secondaryContainer,
-    opacity: 0.2,
-  },
-  blobBottom: {
-    position: 'absolute',
-    bottom: 160,
-    right: 40,
-    width: 320,
-    height: 320,
-    borderRadius: 160,
-    backgroundColor: MealMindColors.primaryContainer,
-    opacity: 0.1,
   },
   column: {
     maxWidth: CONTENT_MAX,
     width: '100%',
     alignItems: 'center',
-    gap: MealMindSpace.xl + 8,
+    gap: MealMindSpace.md,
   },
-  heroCluster: {
-    width: 216,
-    height: 216,
-    alignSelf: 'center',
-    marginTop: MealMindSpace.md,
+  heroWrap: {
+    marginBottom: MealMindSpace.md,
   },
   heroFrame: {
-    width: 192,
-    height: 192,
-    borderRadius: MealMindRadii.lg,
-    backgroundColor: MealMindColors.surfaceContainerLowest,
-    alignSelf: 'center',
+    width: 180,
+    height: 180,
+    borderRadius: 90,
     overflow: 'hidden',
-    alignItems: 'center',
-    justifyContent: 'center',
+    backgroundColor: MealMindColors.surfaceContainerHigh,
     ...MealMindShadow.ambient,
   },
-  heroBgImage: {
-    ...StyleSheet.absoluteFillObject,
-    opacity: 0.2,
-    transform: [{ scale: 1.1 }],
-  },
-  heroOrb: {
-    width: 128,
-    height: 128,
-    borderRadius: 64,
-    alignItems: 'center',
-    justifyContent: 'center',
-    zIndex: 2,
-    ...MealMindShadow.glowCta,
-  },
-  satCard: {
-    position: 'absolute',
-    padding: MealMindSpace.md,
-    borderRadius: MealMindRadii.md,
-    backgroundColor: MealMindColors.secondaryContainer,
-  },
-  satTopRight: {
-    top: -8,
-    right: -8,
-  },
-  satBottomLeft: {
-    bottom: -8,
-    left: -8,
-  },
-  copyBlock: {
-    gap: MealMindSpace.md,
-    alignItems: 'center',
-    paddingHorizontal: MealMindSpace.sm,
+  heroImg: {
+    width: '100%',
+    height: '100%',
   },
   title: {
-    fontFamily: MealMindFonts.headlineBold,
-    fontSize: 28,
-    lineHeight: 34,
+    fontFamily: MealMindFonts.headlineExtraBold,
+    fontSize: 24,
+    lineHeight: 30,
     letterSpacing: headlineTracking,
     textAlign: 'center',
     color: MealMindColors.onSurface,
   },
   subtitle: {
     fontFamily: MealMindFonts.body,
-    fontSize: 17,
-    lineHeight: 24,
+    fontSize: 15,
+    lineHeight: 22,
     textAlign: 'center',
     color: MealMindColors.onSurfaceVariant,
-    maxWidth: 300,
-    alignSelf: 'center',
+    maxWidth: 320,
+    marginBottom: MealMindSpace.lg,
   },
   progressBlock: {
     width: '100%',
-    gap: MealMindSpace.lg,
-    alignItems: 'center',
+    gap: MealMindSpace.sm,
   },
   track: {
-    height: 12,
-    borderRadius: 6,
+    width: '100%',
+    height: 8,
+    borderRadius: MealMindRadii.full,
     backgroundColor: MealMindColors.surfaceContainerHigh,
     overflow: 'hidden',
   },
-  fillWrap: {
+  fill: {
     height: '100%',
-    borderRadius: 6,
-    overflow: 'hidden',
-    position: 'relative',
-  },
-  shimmerStripe: {
-    position: 'absolute',
-    top: 0,
-    bottom: 0,
-    width: '45%',
-    backgroundColor: 'rgba(255,255,255,0.35)',
+    borderRadius: MealMindRadii.full,
+    backgroundColor: MealMindColors.primary,
   },
   progressMeta: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    width: '100%',
-    paddingHorizontal: MealMindSpace.sm,
   },
   statusLeft: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: MealMindSpace.sm,
-  },
-  pulseDot: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-    backgroundColor: MealMindColors.primary,
+    gap: 6,
   },
   statusLabel: {
     fontFamily: MealMindFonts.bodyMedium,
-    fontSize: 14,
+    fontSize: 13,
     color: MealMindColors.primary,
   },
   percent: {
-    fontFamily: MealMindFonts.headlineBold,
-    fontSize: 14,
+    fontFamily: MealMindFonts.labelSemibold,
+    fontSize: 13,
+    letterSpacing: 1,
     color: MealMindColors.onSurfaceVariant,
-  },
-  skeletonGrid: {
-    flexDirection: 'row',
-    gap: MealMindSpace.md,
-    marginTop: MealMindSpace.lg,
-    opacity: 0.4,
-    width: '100%',
-  },
-  skeletonCard: {
-    flex: 1,
-    backgroundColor: MealMindColors.surfaceContainerLow,
-    borderRadius: MealMindRadii.md,
-    padding: MealMindSpace.md,
-    alignItems: 'center',
-    gap: MealMindSpace.sm,
-  },
-  skeletonBar: {
-    height: 8,
-    width: 64,
-    borderRadius: 4,
-    backgroundColor: `${MealMindColors.outlineVariant}4D`,
   },
 });

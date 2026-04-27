@@ -28,3 +28,15 @@ export async function apiGet(path: string): Promise<Response> {
     headers: { ...(await getAuthHeaders()) },
   });
 }
+
+/** Authenticated POST to MealMind API (JSON body). */
+export async function apiPost(path: string, body: unknown): Promise<Response> {
+  return await fetch(`${API_BASE}${path}`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      ...(await getAuthHeaders()),
+    },
+    body: JSON.stringify(body),
+  });
+}

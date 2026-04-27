@@ -2,6 +2,7 @@ import express from "express";
 import { errorHandler, notFoundHandler } from "./middleware/errorHandler.js";
 import { requestLogger } from "./middleware/requestLogger.js";
 import { favoritesRouter } from "./routes/favorites.js";
+import { ingredientsRouter } from "./routes/ingredients.js";
 import { recipesRouter } from "./routes/recipes.js";
 import { usersRouter } from "./routes/users.js";
 
@@ -22,6 +23,7 @@ export function createApp(): express.Express {
   app.use("/v1/users", usersRouter);
   app.use("/v1/recipes", recipesRouter);
   app.use("/v1/favorites", favoritesRouter);
+  app.use("/v1/ingredients", ingredientsRouter);
 
   app.use(notFoundHandler);
   app.use(errorHandler);
