@@ -75,14 +75,23 @@ function AnswerLine({ text }: { text: string }) {
   );
 }
 
-export function OnboardingProfileSummary({ profile }: { profile: StoredProfile }) {
+export function OnboardingProfileSummary({
+  profile,
+  embedded = false,
+}: {
+  profile: StoredProfile;
+  /** When nested under Profile “details”, hide the duplicated hero headline. */
+  embedded?: boolean;
+}) {
   return (
     <View style={styles.root}>
-      <View style={styles.hero}>
-        <Text style={styles.heroKicker}>PERSONALIZATION</Text>
-        <Text style={styles.heroTitle}>Your onboarding answers</Text>
-        <Text style={styles.heroSub}>What you shared in the 12-step wizard — synced to your account.</Text>
-      </View>
+      {!embedded ? (
+        <View style={styles.hero}>
+          <Text style={styles.heroKicker}>PERSONALIZATION</Text>
+          <Text style={styles.heroTitle}>Your onboarding answers</Text>
+          <Text style={styles.heroSub}>What you shared in the 12-step wizard — synced to your account.</Text>
+        </View>
+      ) : null}
 
       <Section step="Step 1 of 12" title="Main goal" icon="flag">
         <AnswerLine text={WELLNESS_GOAL_LABELS[profile.wellnessGoal]} />

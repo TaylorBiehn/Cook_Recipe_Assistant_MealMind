@@ -4,19 +4,29 @@ import * as WebBrowser from 'expo-web-browser';
 import { WebBrowserPresentationStyle } from 'expo-web-browser';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import {
+  ActivityIndicator,
+  Platform,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  Text,
+  View,
+} from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { FallbackRecipeImage } from '@/components/FallbackRecipeImage';
-import { GlowButton, MealMindMainTabFooter, MealMindScreen } from '@/components/mealmind';
+import { MealMindMainTabFooter, MealMindScreen } from '@/components/mealmind';
 import { MealMindColors } from '@/constants/mealmind-colors';
 import { MealMindRadii, MealMindShadow, MealMindSpace } from '@/constants/mealmind-layout';
 import { MealMindFonts, headlineTracking } from '@/constants/mealmind-typography';
-import { showErrorToast } from '@/lib/mealmind-toast';
+import { addFavorite, isFavorite, removeFavorite } from '@/lib/favorites-storage';
+import { showErrorToast, showSuccessToast } from '@/lib/mealmind-toast';
 import type { MockRecipe } from '@/lib/mealmind-recipe-mocks';
 import { getMockRecipe } from '@/lib/mealmind-recipe-mocks';
+import { mealTypeIdFromLabel, type MealTypeId } from '@/lib/meal-taxonomy';
 import { resolveRecipeTutorialUrl } from '@/lib/recipe-tutorial-video';
-import { getGeneratedRecipeById } from '@/lib/recipe-generation-session';
+import { getGeneratedRecipeById, getLastGeneratedSession } from '@/lib/recipe-generation-session';
 
 export default function RecipeDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string | string[] }>();
@@ -27,7 +37,11 @@ export default function RecipeDetailScreen() {
   /** Generated recipes must not fall back to design-mock dish photos on load errors. */
   const [useNeutralImageFallbacks, setUseNeutralImageFallbacks] = useState(false);
   const [openingTutorial, setOpeningTutorial] = useState(false);
+  const [saved, setSaved] = useState(false);
+  const [savingBusy, setSavingBusy] = useState(false);
+  const [mealTypeHint, setMealTypeHint] = useState<MealTypeId | undefined>(undefined);
   const tutorialBusyRef = useRef(false);
+  const [saveFabHover, setSaveFabHover] = useState(false);
 
   const openTutorialVideo = useCallback(async (r: MockRecipe) => {
     if (tutorialBusyRef.current) {
@@ -60,15 +74,71 @@ export default function RecipeDetailScreen() {
       if (generated != null) {
         setRecipe(generated);
         setUseNeutralImageFallbacks(true);
+        const session = await getLastGeneratedSession();
+        if (!cancelled) {
+          setMealTypeHint(
+            mealTypeIdFromLabel(session?.mealTypeLabel) ??
+              mealTypeIdFromLabel(generated.tags[0]?.label),
+          );
+        }
       } else {
-        setRecipe(getMockRecipe(rawId));
+        const mock = getMockRecipe(rawId);
+        setRecipe(mock);
         setUseNeutralImageFallbacks(false);
+        setMealTypeHint(mealTypeIdFromLabel(mock?.tags[0]?.label));
       }
     })();
     return () => {
       cancelled = true;
     };
   }, [rawId]);
+
+  useEffect(() => {
+    let cancelled = false;
+    if (!rawId) {
+      setSaved(false);
+      return;
+    }
+    void (async () => {
+      const is = await isFavorite(rawId);
+      if (!cancelled) setSaved(is);
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [rawId]);
+
+  const onToggleFavorite = useCallback(async () => {
+    if (recipe == null || savingBusy) return;
+    setSavingBusy(true);
+    try {
+      if (saved) {
+        await removeFavorite(recipe.id);
+        setSaved(false);
+        showSuccessToast('Removed', `${recipe.title} is no longer in your favorites.`);
+      } else {
+        await addFavorite({
+          id: recipe.id,
+          title: recipe.title,
+          blurb: recipe.subtitle,
+          image: recipe.heroImage,
+          mealTypes: mealTypeHint ? [mealTypeHint] : undefined,
+          badgeLabels: recipe.tags.slice(0, 2).map((t) => t.label),
+          meta: [
+            { icon: 'schedule', text: recipe.timeLabel },
+            { icon: 'local-fire-department', text: recipe.kcalLabel },
+            { icon: 'group', text: recipe.servingsLabel },
+          ],
+        });
+        setSaved(true);
+        showSuccessToast('Saved to Favorites', recipe.title);
+      }
+    } catch (e) {
+      showErrorToast('Favorites', e instanceof Error ? e.message : 'Could not update favorites.');
+    } finally {
+      setSavingBusy(false);
+    }
+  }, [recipe, saved, savingBusy, mealTypeHint]);
 
   if (recipe == null) {
     return (
@@ -106,7 +176,7 @@ export default function RecipeDetailScreen() {
 
         <ScrollView
           style={styles.scroll}
-          contentContainerStyle={{ paddingBottom: insets.bottom + 100 }}
+          contentContainerStyle={{ paddingBottom: insets.bottom + 96 }}
           showsVerticalScrollIndicator={false}>
           <View style={styles.heroWrap}>
             <FallbackRecipeImage
@@ -231,15 +301,40 @@ export default function RecipeDetailScreen() {
           </View>
         </ScrollView>
 
-        <View style={[styles.bottomBar, { paddingBottom: insets.bottom + MealMindSpace.md }]}>
-          <GlowButton
-            label="Save to Favorites"
-            trailing={<MaterialIcons name="favorite" size={22} color={MealMindColors.onPrimary} />}
-            style={styles.saveBtn}
-            onPress={() => {}}
-          />
-          <Pressable style={styles.timerBtn} accessibilityLabel="Timer">
-            <MaterialIcons name="timer" size={26} color={MealMindColors.onSurface} />
+        <View style={[styles.saveFab, { bottom: insets.bottom + MealMindSpace.md }]} pointerEvents="box-none">
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel={saved ? 'Saved to favorites' : 'Save to favorites'}
+            accessibilityHint={
+              Platform.OS === 'web'
+                ? 'Hover to see label, tap to save'
+                : 'Tap to save or remove from favorites'
+            }
+            onPress={() => void onToggleFavorite()}
+            disabled={savingBusy || recipe == null}
+            {...(Platform.OS === 'web'
+              ? {
+                  onMouseEnter: () => setSaveFabHover(true),
+                  onMouseLeave: () => setSaveFabHover(false),
+                }
+              : {})}
+            style={({ pressed }) => [
+              styles.saveFabInner,
+              Platform.OS === 'web' && saveFabHover ? styles.saveFabInnerExpanded : null,
+              pressed && styles.pressed,
+            ]}>
+            {savingBusy ? (
+              <ActivityIndicator color={MealMindColors.onPrimary} />
+            ) : (
+              <MaterialIcons
+                name={saved ? 'favorite' : 'favorite-border'}
+                size={24}
+                color={MealMindColors.onPrimary}
+              />
+            )}
+            {Platform.OS === 'web' && saveFabHover ? (
+              <Text style={styles.saveFabLabel}>{saved ? 'Saved to favorites' : 'Save to favorites'}</Text>
+            ) : null}
           </Pressable>
         </View>
       </View>
@@ -585,29 +680,30 @@ const styles = StyleSheet.create({
   pressed: {
     opacity: 0.92,
   },
-  bottomBar: {
+  saveFab: {
     position: 'absolute',
-    left: 0,
-    right: 0,
-    bottom: 0,
+    right: MealMindSpace.lg,
+    zIndex: 30,
+    alignItems: 'flex-end',
+  },
+  saveFabInner: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: MealMindSpace.md,
-    paddingHorizontal: MealMindSpace.lg,
-    paddingTop: MealMindSpace.md,
-    backgroundColor: MealMindColors.surface,
-    borderTopWidth: StyleSheet.hairlineWidth,
-    borderTopColor: `${MealMindColors.outlineVariant}26`,
-  },
-  saveBtn: {
-    flex: 1,
-  },
-  timerBtn: {
-    width: 56,
-    height: 56,
-    borderRadius: MealMindRadii.md,
-    backgroundColor: MealMindColors.surfaceContainerHighest,
-    alignItems: 'center',
     justifyContent: 'center',
+    gap: MealMindSpace.sm,
+    minHeight: 56,
+    minWidth: 56,
+    paddingHorizontal: MealMindSpace.sm,
+    borderRadius: MealMindRadii.full,
+    backgroundColor: MealMindColors.primary,
+    ...MealMindShadow.ambient,
+  },
+  saveFabInnerExpanded: {
+    paddingHorizontal: MealMindSpace.lg,
+  },
+  saveFabLabel: {
+    fontFamily: MealMindFonts.headlineBold,
+    fontSize: 15,
+    color: MealMindColors.onPrimary,
   },
 });

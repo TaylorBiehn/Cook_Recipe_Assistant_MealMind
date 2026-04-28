@@ -1,31 +1,48 @@
 import type { AuthError } from '@supabase/supabase-js';
 
 import { clearAuthToken } from '@/lib/auth-storage';
+import { clearFavorites } from '@/lib/favorites-storage';
 import {
   clearLastAuthUserId,
   clearProfileAndOnboardingState,
   getLastAuthUserId,
   setLastAuthUserId,
 } from '@/lib/profile-storage';
+import { clearLocalRecentIngredients } from '@/lib/recent-ingredients-api';
+import { clearLastGeneratedRecipes } from '@/lib/recipe-generation-session';
 import { getSupabaseMisconfigurationMessage, supabase } from '@/lib/supabase';
 
-/** If a different Supabase account signs in, drop stale profile / onboarding from the previous user. */
+/**
+ * Drop device-local caches that were saved per-user but keyed only by device.
+ * Without this, a different sign-in inherits the previous user's favorites,
+ * ingredient history, and last generated recipes from AsyncStorage.
+ */
+async function clearUserScopedDeviceCaches(): Promise<void> {
+  await Promise.all([
+    clearProfileAndOnboardingState(),
+    clearFavorites(),
+    clearLocalRecentIngredients(),
+    clearLastGeneratedRecipes(),
+  ]);
+}
+
+/** If a different Supabase account signs in, drop stale per-user device caches from the previous user. */
 export async function syncLocalStateAfterAuth(): Promise<void> {
   const { data } = await supabase.auth.getSession();
   const uid = data.session?.user?.id;
   if (!uid) return;
   const last = await getLastAuthUserId();
   if (last != null && last !== uid) {
-    await clearProfileAndOnboardingState();
+    await clearUserScopedDeviceCaches();
   }
   await setLastAuthUserId(uid);
 }
 
-/** Sign out and clear local profile / onboarding flags so the next sign-in runs the 12-step flow. */
+/** Sign out and clear local per-user state so the next sign-in starts from a clean slate. */
 export async function signOutMealMind(): Promise<void> {
   await supabase.auth.signOut();
   await clearAuthToken();
-  await clearProfileAndOnboardingState();
+  await clearUserScopedDeviceCaches();
   await clearLastAuthUserId();
 }
 
@@ -84,7 +101,7 @@ export async function signUpWithEmail(input: {
   }
   if (error) throw new Error(mapSupabaseAuthError(error));
   if (data.session) {
-    await clearProfileAndOnboardingState();
+    await clearUserScopedDeviceCaches();
     await clearLastAuthUserId();
     await syncLocalStateAfterAuth();
     return { session: true, needsEmailConfirmation: false };

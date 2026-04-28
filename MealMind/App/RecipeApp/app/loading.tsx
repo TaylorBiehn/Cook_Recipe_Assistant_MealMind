@@ -4,6 +4,7 @@ import { useRouter } from 'expo-router';
 import { useEffect, useRef, useState } from 'react';
 import { Animated, Easing, StyleSheet, Text, View } from 'react-native';
 
+import { FallbackRecipeImage } from '@/components/FallbackRecipeImage';
 import { MealMindFlowHeader, MealMindScreen } from '@/components/mealmind';
 import { MealMindColors } from '@/constants/mealmind-colors';
 import { MealMindRadii, MealMindShadow, MealMindSpace } from '@/constants/mealmind-layout';
@@ -22,8 +23,12 @@ const CONTENT_MAX = 420;
 const MIN_SPIN_MS = 1200;
 const PROGRESS_MS = 2200;
 
+/**
+ * Appetizing harvest quinoa bowl — already in `TRUSTED_RECIPE_HERO_URLS` (confirmed loading on the design CDN).
+ * `FallbackRecipeImage` will swap to other curated food photos if this ever fails.
+ */
 const HERO_IMG =
-  'https://lh3.googleusercontent.com/aida-public/AB6AXuB9xFzJHF0x0V0ScQgCmZK48mGTKS-FoQI3rkh8Du332MaX7Iv69QxLiut_01IF1ee7jfFpKFvCx3mGJO2ip21Cgw47SGZVBLo_WbOUeQAfg-AtVPpXcttSOT3V3OLUtruvjW61B9CSpSkKNkhietM-10ZTFuqR75aloqjdD3igXj_Vmt6bKWlHGHbqy4mBhsh_8239Q_J02mAoNB3giG1E855dR32msh39SXJrpAzGRhoPN4O2OxEIUCZ1m28tYHiTi90Kzxnga4M';
+  'https://lh3.googleusercontent.com/aida-public/AB6AXuARJ93sHwYt5yEXdlDISjupfDinSIbuRMHA32tDfboyASbE893eOY5hhMm-TQFYWzo96JHL2EC3UTtly9_WtxOAp16_qaSs5rO6pjEO-jFrRS37N3EpGJLZULmVwZv0edQ0CjqqnPSk78LNVKVbETo8wt-zuxqb85CqRx1g4ydLX1SgvJtsbzCcpRsQJJBnEsCGbtaAnbPT4UgXwpRWBgTsojFl3OPcgdSkxFxncEYNXcffi8oNGU7l_dbSz163ns15UzQE7vebvJ0';
 
 export default function LoadingScreen() {
   const router = useRouter();
@@ -134,7 +139,18 @@ export default function LoadingScreen() {
           <View style={styles.column}>
             <Animated.View style={[styles.heroWrap, { transform: [{ translateY }] }]}>
               <View style={styles.heroFrame}>
-                <Image source={{ uri: HERO_IMG }} style={styles.heroImg} contentFit="cover" />
+                <FallbackRecipeImage
+                  uri={HERO_IMG}
+                  style={styles.heroImg}
+                  contentFit="cover"
+                  stableKey="loading-hero"
+                />
+              </View>
+              <View style={[styles.heroBadge, styles.heroBadgeKcal]}>
+                <MaterialIcons name="local-fire-department" size={18} color={MealMindColors.primary} />
+              </View>
+              <View style={[styles.heroBadge, styles.heroBadgeSpark]}>
+                <MaterialIcons name="auto-awesome" size={16} color={MealMindColors.secondary} />
               </View>
             </Animated.View>
 
@@ -180,19 +196,46 @@ const styles = StyleSheet.create({
     gap: MealMindSpace.md,
   },
   heroWrap: {
+    width: 220,
+    height: 220,
+    alignItems: 'center',
+    justifyContent: 'center',
     marginBottom: MealMindSpace.md,
   },
   heroFrame: {
-    width: 180,
-    height: 180,
-    borderRadius: 90,
+    width: 200,
+    height: 200,
+    borderRadius: 100,
     overflow: 'hidden',
     backgroundColor: MealMindColors.surfaceContainerHigh,
+    borderWidth: 6,
+    borderColor: 'rgba(255,255,255,0.85)',
     ...MealMindShadow.ambient,
   },
   heroImg: {
     width: '100%',
     height: '100%',
+  },
+  heroBadge: {
+    position: 'absolute',
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: MealMindColors.surfaceContainerLowest,
+    alignItems: 'center',
+    justifyContent: 'center',
+    ...MealMindShadow.ambient,
+  },
+  heroBadgeKcal: {
+    top: 8,
+    right: 4,
+  },
+  heroBadgeSpark: {
+    bottom: 12,
+    left: 0,
+    width: 38,
+    height: 38,
+    borderRadius: 19,
   },
   title: {
     fontFamily: MealMindFonts.headlineExtraBold,

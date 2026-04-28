@@ -1,5 +1,6 @@
 import { Router } from "express";
 import mysql from "mysql2/promise";
+import { getAuthSubjectFromAuthorizationHeader } from "../auth/subject.js";
 import { ingredientRecentUpsertSchema } from "../contracts/ingredient.js";
 import { asyncHandler } from "../middleware/asyncHandler.js";
 import { HttpError } from "../middleware/errorHandler.js";
@@ -47,6 +48,20 @@ async function getOrCreateDefaultUserId(p: mysql.Pool): Promise<number> {
   return defaultUserId;
 }
 
+async function getOrCreateUserIdForRequest(req: { headers: Record<string, string | string[] | undefined> }, p: mysql.Pool): Promise<number> {
+  const rawAuthorization = req.headers.authorization;
+  const authorizationHeader = Array.isArray(rawAuthorization) ? rawAuthorization[0] : rawAuthorization;
+  const authSubject = getAuthSubjectFromAuthorizationHeader(authorizationHeader);
+  if (!authSubject) {
+    return getOrCreateDefaultUserId(p);
+  }
+  const [insertResult] = await p.execute<mysql.ResultSetHeader>(
+    "INSERT INTO users (auth_subject) VALUES (?) ON DUPLICATE KEY UPDATE id = LAST_INSERT_ID(id)",
+    [authSubject],
+  );
+  return Number(insertResult.insertId);
+}
+
 function normalizeIngredients(items: readonly string[]): string[] {
   const seen = new Set<string>();
   const out: string[] = [];
@@ -69,7 +84,7 @@ router.get(
     const limit = Number.isFinite(limitNum) ? Math.max(1, Math.min(100, limitNum)) : 20;
 
     const p = getPool();
-    const userId = await getOrCreateDefaultUserId(p);
+    const userId = await getOrCreateUserIdForRequest(req, p);
     const [rows] = await p.query<mysql.RowDataPacket[]>(
       `SELECT ingredient_name, last_used_at, use_count
        FROM ingredient_history
@@ -101,7 +116,7 @@ router.post(
       return;
     }
     const p = getPool();
-    const userId = await getOrCreateDefaultUserId(p);
+    const userId = await getOrCreateUserIdForRequest(req, p);
     const conn = await p.getConnection();
     try {
       await conn.beginTransaction();

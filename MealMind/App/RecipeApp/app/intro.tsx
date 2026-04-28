@@ -1,7 +1,9 @@
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import { useRouter } from 'expo-router';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
+  Animated,
+  Easing,
   KeyboardAvoidingView,
   Platform,
   Pressable,
@@ -26,11 +28,9 @@ type WizardStepId =
   | 'goal'
   | 'diet'
   | 'cuisines'
-  | 'allergies'
   | 'avoidFoods'
   | 'dislikes'
   | 'cookingExperience'
-  | 'kitchenEquipment'
   | 'schedule'
   | 'flavor'
   | 'spicy'
@@ -53,11 +53,6 @@ const STEPS: { id: WizardStepId; title: string; subtitle: string }[] = [
     subtitle: 'Select your favorites to customize your recipe feed.',
   },
   {
-    id: 'allergies',
-    title: 'Any food allergies?',
-    subtitle: 'Add ingredients we should always avoid for safety.',
-  },
-  {
     id: 'avoidFoods',
     title: 'Foods to avoid',
     subtitle: 'Add ingredients you prefer not to see in recommendations.',
@@ -71,11 +66,6 @@ const STEPS: { id: WizardStepId; title: string; subtitle: string }[] = [
     id: 'cookingExperience',
     title: 'Cooking experience',
     subtitle: 'This helps us match recipes to your comfort level.',
-  },
-  {
-    id: 'kitchenEquipment',
-    title: 'Kitchen equipment',
-    subtitle: 'Select what you have available for cooking.',
   },
   {
     id: 'schedule',
@@ -97,6 +87,13 @@ const STEPS: { id: WizardStepId; title: string; subtitle: string }[] = [
     title: 'Calories',
     subtitle: 'Choose how you want to think about calories.',
   },
+];
+
+const FINALIZE_MS = 1800;
+const FINALIZE_LINES: { label: string; icon: keyof typeof MaterialIcons.glyphMap }[] = [
+  { label: 'Saving your taste profile', icon: 'restaurant-menu' },
+  { label: 'Balancing flavors & goals', icon: 'tune' },
+  { label: 'Personalizing your first recipes', icon: 'auto-awesome' },
 ];
 
 const FORM_MAX_WIDTH = 576;
@@ -138,19 +135,6 @@ const CUISINES = [
   'French',
   'Middle Eastern',
   'Vietnamese',
-];
-
-const EQUIPMENT = [
-  'Oven',
-  'Stovetop',
-  'Air fryer',
-  'Instant Pot',
-  'Slow cooker',
-  'Blender',
-  'Food processor',
-  'Grill',
-  'Rice cooker',
-  'Microwave',
 ];
 
 const FLAVORS = ['savory', 'healthy', 'sweet', 'tangy', 'mild', 'spicy'];
@@ -247,6 +231,7 @@ export default function IntroWizardScreen() {
   const insets = useSafeAreaInsets();
   const [stepIdx, setStepIdx] = useState(0);
   const [hydrated, setHydrated] = useState(false);
+  const [finalizing, setFinalizing] = useState(false);
   const [draft, setDraft] = useState<IntroDraft>(() => defaultDraft());
 
   useEffect(() => {
@@ -280,6 +265,8 @@ export default function IntroWizardScreen() {
       return;
     }
 
+    setFinalizing(true);
+
     const prev = await getProfile();
     const merged: StoredProfile = {
       countryCode: prev?.countryCode ?? 'WORLDWIDE',
@@ -302,9 +289,13 @@ export default function IntroWizardScreen() {
       calorieFocus: draft.calorieFocus,
       introWizardComplete: true,
     };
+    const started = Date.now();
     await setProfile(merged);
     await upsertMealMindProfile(merged);
     await setIntroSeen();
+    const waited = Date.now() - started;
+    const remaining = Math.max(0, FINALIZE_MS - waited);
+    await new Promise<void>((resolve) => setTimeout(resolve, remaining));
     router.replace('/');
   }, [draft, router, stepIdx]);
 
@@ -328,11 +319,11 @@ export default function IntroWizardScreen() {
     // Keep them on the intro so they can retest immediately.
   }, []);
 
-  const setTagList = useCallback((key: 'allergies' | 'avoidFoods' | 'dislikes', next: string[]) => {
+  const setTagList = useCallback((key: 'avoidFoods' | 'dislikes', next: string[]) => {
     setDraft((d) => ({ ...d, [key]: next }));
   }, []);
 
-  const toggleListValue = useCallback((key: 'cuisines' | 'kitchenEquipment' | 'flavorProfile', value: string) => {
+  const toggleListValue = useCallback((key: 'cuisines' | 'flavorProfile', value: string) => {
     setDraft((d) => {
       const prev = d[key];
       return prev.includes(value) ? { ...d, [key]: prev.filter((v) => v !== value) } : { ...d, [key]: [...prev, value] };
@@ -348,6 +339,10 @@ export default function IntroWizardScreen() {
         <View style={styles.hydrate} />
       </MealMindScreen>
     );
+  }
+
+  if (finalizing) {
+    return <FinalizingScreen />;
   }
 
   return (
@@ -472,14 +467,6 @@ export default function IntroWizardScreen() {
                   </View>
                 ) : null}
 
-                {step.id === 'allergies' ? (
-                  <TagEditor
-                    placeholder="Type an allergy (e.g., peanuts) then tap Add"
-                    tags={draft.allergies}
-                    onChange={(next) => setTagList('allergies', next)}
-                  />
-                ) : null}
-
                 {step.id === 'avoidFoods' ? (
                   <TagEditor
                     placeholder="Type a food to avoid (e.g., mushrooms) then tap Add"
@@ -522,26 +509,6 @@ export default function IntroWizardScreen() {
                       selected={draft.cookingExperience === 'pro'}
                       onPress={() => setDraft((d) => ({ ...d, cookingExperience: 'pro' as CookingExperience }))}
                     />
-                  </View>
-                ) : null}
-
-                {step.id === 'kitchenEquipment' ? (
-                  <View style={styles.pillsWrap}>
-                    {EQUIPMENT.map((eq) => {
-                      const on = draft.kitchenEquipment.includes(eq);
-                      return (
-                        <Pressable
-                          key={eq}
-                          onPress={() => toggleListValue('kitchenEquipment', eq)}
-                          style={[
-                            styles.pill,
-                            on ? styles.pillOn : styles.pillOff,
-                            on && MealMindShadow.ambient,
-                          ]}>
-                          <Text style={[styles.pillText, on && styles.pillTextOn]}>{eq}</Text>
-                        </Pressable>
-                      );
-                    })}
                   </View>
                 ) : null}
 
@@ -659,6 +626,70 @@ export default function IntroWizardScreen() {
                 onPress={() => void goNext()}
               />
             </View>
+          </View>
+        </View>
+      </View>
+    </MealMindScreen>
+  );
+}
+
+function FinalizingScreen() {
+  const progress = useRef(new Animated.Value(0)).current;
+  const [pct, setPct] = useState(0);
+
+  useEffect(() => {
+    const sub = progress.addListener(({ value }) => {
+      setPct(Math.min(100, Math.round(value * 100)));
+    });
+    Animated.timing(progress, {
+      toValue: 1,
+      duration: FINALIZE_MS,
+      easing: Easing.out(Easing.cubic),
+      useNativeDriver: false,
+    }).start();
+    return () => {
+      progress.removeListener(sub);
+    };
+  }, [progress]);
+
+  const fillWidth = progress.interpolate({
+    inputRange: [0, 1],
+    outputRange: ['0%', '100%'],
+  });
+
+  return (
+    <MealMindScreen scroll={false} showFooter={false} contentBottomInset={0}>
+      <View style={finalizeStyles.root}>
+        <View style={finalizeStyles.column}>
+          <View style={finalizeStyles.iconWell}>
+            <MaterialIcons name="auto-awesome" size={44} color={MealMindColors.onPrimary} />
+          </View>
+          <Text style={finalizeStyles.title}>Setting things up for you</Text>
+          <Text style={finalizeStyles.sub}>
+            We’re tuning your recipe feed to match your taste, schedule, and goals.
+          </Text>
+
+          <View style={finalizeStyles.track}>
+            <Animated.View style={[finalizeStyles.fill, { width: fillWidth }]} />
+          </View>
+          <Text style={finalizeStyles.pct}>{pct}%</Text>
+
+          <View style={finalizeStyles.steps}>
+            {FINALIZE_LINES.map((line, idx) => {
+              const active = pct >= Math.round(((idx + 0.6) / FINALIZE_LINES.length) * 100);
+              return (
+                <View key={line.label} style={finalizeStyles.stepRow}>
+                  <MaterialIcons
+                    name={active ? 'check-circle' : line.icon}
+                    size={20}
+                    color={active ? MealMindColors.primary : MealMindColors.outline}
+                  />
+                  <Text style={[finalizeStyles.stepText, active && finalizeStyles.stepTextOn]}>
+                    {line.label}
+                  </Text>
+                </View>
+              );
+            })}
           </View>
         </View>
       </View>
@@ -1020,6 +1051,82 @@ const styles = StyleSheet.create({
     fontSize: 13,
     color: MealMindColors.primary,
     letterSpacing: headlineTracking,
+  },
+});
+
+const finalizeStyles = StyleSheet.create({
+  root: {
+    flex: 1,
+    backgroundColor: MealMindColors.surface,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: MealMindSpace.lg,
+  },
+  column: {
+    maxWidth: 420,
+    width: '100%',
+    alignItems: 'center',
+    gap: MealMindSpace.md,
+  },
+  iconWell: {
+    width: 96,
+    height: 96,
+    borderRadius: 48,
+    backgroundColor: MealMindColors.primary,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: MealMindSpace.md,
+    ...MealMindShadow.glowCta,
+  },
+  title: {
+    fontFamily: MealMindFonts.headlineExtraBold,
+    fontSize: 26,
+    textAlign: 'center',
+    color: MealMindColors.onSurface,
+  },
+  sub: {
+    fontFamily: MealMindFonts.body,
+    fontSize: 15,
+    lineHeight: 22,
+    textAlign: 'center',
+    color: MealMindColors.onSurfaceVariant,
+    marginBottom: MealMindSpace.md,
+  },
+  track: {
+    width: '100%',
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: MealMindColors.surfaceContainerHigh,
+    overflow: 'hidden',
+  },
+  fill: {
+    height: '100%',
+    borderRadius: 4,
+    backgroundColor: MealMindColors.primary,
+  },
+  pct: {
+    fontFamily: MealMindFonts.labelSemibold,
+    fontSize: 13,
+    letterSpacing: 1.2,
+    color: MealMindColors.onSurfaceVariant,
+  },
+  steps: {
+    marginTop: MealMindSpace.lg,
+    width: '100%',
+    gap: MealMindSpace.sm,
+  },
+  stepRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: MealMindSpace.md,
+  },
+  stepText: {
+    fontFamily: MealMindFonts.bodyMedium,
+    fontSize: 14,
+    color: MealMindColors.onSurfaceVariant,
+  },
+  stepTextOn: {
+    color: MealMindColors.onSurface,
   },
 });
 

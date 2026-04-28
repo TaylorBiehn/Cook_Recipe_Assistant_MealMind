@@ -1,16 +1,18 @@
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import { useFocusEffect } from '@react-navigation/native';
 import { Image } from 'expo-image';
+import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
-import { Fragment, useCallback, useState } from 'react';
+import { useCallback, useState } from 'react';
 import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 
 import { FallbackRecipeImage } from '@/components/FallbackRecipeImage';
-import { MealMindMainTabFooter, MealMindScreen } from '@/components/mealmind';
+import { MealMindMainTabFooter, MealMindScreen, ProfileMenuButton } from '@/components/mealmind';
 import { MealMindColors } from '@/constants/mealmind-colors';
 import { MealMindRadii, MealMindShadow, MealMindSpace } from '@/constants/mealmind-layout';
 import { MealMindFonts, headlineTracking } from '@/constants/mealmind-typography';
 import { generateRecipesFromContext } from '@/lib/ai-recipe-generate';
+import { EXPLORE_CATEGORY_CHIPS, type ExploreHomePresetSlug } from '@/lib/explore-category-home';
 import { showErrorToast } from '@/lib/mealmind-toast';
 import type { MockRecipe } from '@/lib/mealmind-recipe-mocks';
 import { RESULTS_FEATURED, RESULTS_SECONDARY } from '@/lib/mealmind-recipe-mocks';
@@ -38,23 +40,75 @@ function dedupeNewIds(existing: MockRecipe[], batch: MockRecipe[]): MockRecipe[]
   });
 }
 
-function AiRecipeMetaRow({ recipe, session }: { recipe: MockRecipe; session: LastGeneratedSession }) {
-  const mealRaw = session.mealTypeLabel?.trim() || recipe.tags[0]?.label || 'Meal';
-  const styleRaw = session.cookingStyleLabel?.trim() || '—';
+/**
+ * Shared image-overlay card for every result row — same fixed image height everywhere.
+ */
+function RecipeOverlayCard({
+  imageUri,
+  useNeutralFallbacks,
+  stableKey,
+  title,
+  time,
+  kcal,
+  detail,
+  onPress,
+}: {
+  imageUri: string | undefined;
+  useNeutralFallbacks?: boolean;
+  stableKey: string;
+  title: string;
+  time: string;
+  kcal?: string;
+  detail?: string;
+  onPress: () => void;
+}) {
   return (
-    <View style={[styles.heroMetaRow, styles.metaRowWrap]}>
-      <Text style={styles.badge}>{mealRaw.toUpperCase()}</Text>
-      <View style={styles.metaItem}>
-        <MaterialIcons name="local-fire-department" size={16} color={MealMindColors.onSurfaceVariant} />
-        <Text style={styles.metaTextSm}>{recipe.kcalLabel}</Text>
+    <Pressable
+      onPress={onPress}
+      style={({ pressed }) => [styles.heroCard, pressed && styles.pressed]}>
+      <View style={styles.heroImageWrap}>
+        <FallbackRecipeImage
+          uri={imageUri}
+          style={styles.heroImage}
+          contentFit="cover"
+          useNeutralFallbacks={useNeutralFallbacks}
+          stableKey={stableKey}
+        />
+        <LinearGradient
+          colors={['transparent', 'rgba(0,0,0,0.78)']}
+          locations={[0.45, 1]}
+          style={StyleSheet.absoluteFill}
+          pointerEvents="none"
+        />
+        <View style={styles.heroOverlay}>
+          <View style={styles.heroOverlayTitleRow}>
+            <Text style={styles.heroOverlayTitle} numberOfLines={2}>
+              {title}
+            </Text>
+            <View style={styles.heroOverlayTimeWrap}>
+              <Text style={styles.heroOverlayTime}>{time}</Text>
+              {kcal ? (
+                <View style={styles.heroOverlayMetaItem}>
+                  <MaterialIcons
+                    name="local-fire-department"
+                    size={16}
+                    color="rgba(255,255,255,0.92)"
+                  />
+                  <Text style={styles.heroOverlayKcalText}>{kcal}</Text>
+                </View>
+              ) : null}
+            </View>
+          </View>
+          {detail && detail !== '—' ? (
+            <View style={styles.heroOverlayMetaRow}>
+              <Text style={styles.heroOverlayDetailText} numberOfLines={1}>
+                {detail}
+              </Text>
+            </View>
+          ) : null}
+        </View>
       </View>
-      <View style={[styles.metaItem, styles.styleMeta]}>
-        <MaterialIcons name="tune" size={16} color={MealMindColors.onSurfaceVariant} />
-        <Text style={styles.metaTextSm} numberOfLines={1}>
-          {styleRaw}
-        </Text>
-      </View>
-    </View>
+    </Pressable>
   );
 }
 
@@ -80,30 +134,16 @@ const EXTRA_RESULTS = [
 ] as const;
 
 function shortTime(label: string): string {
-  return label.replace(/\s*mins?\s*$/i, 'm').replace(/\s+min\s*$/i, 'm');
-}
-
-function bestPickPillText(mealTypeLabel: string | undefined): string {
-  const t = mealTypeLabel?.trim().toLowerCase() ?? '';
-  if (t.includes('breakfast')) {
-    return 'Best choice for breakfast';
-  }
-  if (t.includes('lunch')) {
-    return 'Best choice for lunch';
-  }
-  if (t.includes('dinner')) {
-    return 'Best choice for dinner';
-  }
-  if (t.includes('snack')) {
-    return 'Best pick for snacks';
-  }
-  return 'Top pick for you';
+  const noAngles = label.replace(/[<>]/g, '').trim();
+  return noAngles.replace(/\s*mins?\s*$/i, 'm').replace(/\s+min\s*$/i, 'm');
 }
 
 export default function ResultsScreen() {
   const router = useRouter();
   const [session, setSession] = useState<LastGeneratedSession | null>(null);
   const [loadingMore, setLoadingMore] = useState(false);
+  /** Explore chips that are visually selected — each tap toggles independently (multi-select). */
+  const [selectedExploreSlugs, setSelectedExploreSlugs] = useState<ExploreHomePresetSlug[]>([]);
 
   useFocusEffect(
     useCallback(() => {
@@ -129,6 +169,12 @@ export default function ResultsScreen() {
   const restAi = aiRecipes != null && aiRecipes.length > 1 ? aiRecipes.slice(1) : [];
   const canLoadMore =
     Boolean(featured && session?.searchContext && (session.recipes.length ?? 0) < MAX_AI_RECIPES);
+
+  const toggleExploreCategory = useCallback((slug: ExploreHomePresetSlug) => {
+    setSelectedExploreSlugs((prev) =>
+      prev.includes(slug) ? prev.filter((s) => s !== slug) : [...prev, slug],
+    );
+  }, []);
 
   const onLoadMore = () => {
     if (loadingMore || session == null) {
@@ -184,15 +230,11 @@ export default function ResultsScreen() {
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scroll}>
         <View style={styles.inner}>
           <View style={styles.topBar}>
-            <View style={styles.topBarRow}>
-              <Pressable accessibilityRole="button" accessibilityLabel="Open menu" style={styles.iconBtn}>
-                <MaterialIcons name="menu" size={24} color={MealMindColors.primary} />
-              </Pressable>
-              <Text style={styles.topBarTitle}>Culinary Curator</Text>
+            <View style={styles.topBarTitleCol}>
+              <Text style={styles.topBarKicker}>Cooking Assistant</Text>
+              <Text style={styles.topBarTitle}>MealMind</Text>
             </View>
-            <View style={styles.avatarWell}>
-              <MaterialIcons name="account-circle" size={26} color={MealMindColors.primary} />
-            </View>
+            <ProfileMenuButton />
           </View>
 
           <View style={styles.pageHeader}>
@@ -204,166 +246,105 @@ export default function ResultsScreen() {
             </Text>
           </View>
 
-          <Pressable
-            onPress={() => router.push(`/recipe/${featured ? featured.id : RESULTS_FEATURED.id}`)}
-            style={({ pressed }) => [styles.heroCard, pressed && styles.pressed]}>
-            <View style={styles.bestPill}>
-              <MaterialIcons name="star" size={14} color={MealMindColors.onPrimary} />
-              <Text style={styles.bestPillText}>
-                {featured ? bestPickPillText(session?.mealTypeLabel) : 'Best Choice for Tonight'}
-              </Text>
-            </View>
-            <View style={styles.heroImageWrap}>
-              <FallbackRecipeImage
-                uri={featured ? featured.heroImage : RESULTS_FEATURED.image}
-                style={styles.heroImage}
-                contentFit="cover"
-                useNeutralFallbacks={Boolean(featured)}
-                stableKey={featured ? `${featured.id}-hero` : `${RESULTS_FEATURED.id}-hero`}
-              />
-            </View>
-            <View style={styles.heroTextCol}>
-              <View style={styles.rowBetween}>
-                <Text style={styles.heroTitle}>{featured ? featured.title : RESULTS_FEATURED.title}</Text>
-                <Text style={styles.heroTime}>
-                  {featured ? shortTime(featured.timeLabel) : RESULTS_FEATURED.time.replace(' mins', 'm')}
-                </Text>
-              </View>
-              {featured && session ? (
-                <AiRecipeMetaRow recipe={featured} session={session} />
-              ) : (
-                <View style={styles.heroMetaRow}>
-                  <Text style={styles.badge}>HEALTHY</Text>
-                  <View style={styles.metaItem}>
-                    <MaterialIcons name="local-fire-department" size={16} color={MealMindColors.onSurfaceVariant} />
-                    <Text style={styles.metaTextSm}>420 kcal</Text>
-                  </View>
-                  <View style={[styles.metaItem, styles.styleMeta]}>
-                    <MaterialIcons name="tune" size={16} color={MealMindColors.onSurfaceVariant} />
-                    <Text style={styles.metaTextSm}>—</Text>
-                  </View>
-                </View>
-              )}
-            </View>
-          </Pressable>
+          {featured ? (
+            <RecipeOverlayCard
+              imageUri={featured.heroImage}
+              useNeutralFallbacks
+              stableKey={`${featured.id}-hero`}
+              title={featured.title}
+              time={shortTime(featured.timeLabel)}
+              kcal={featured.kcalLabel}
+              detail={session?.cookingStyleLabel?.trim() || '—'}
+              onPress={() => router.push(`/recipe/${featured.id}`)}
+            />
+          ) : (
+            <RecipeOverlayCard
+              imageUri={RESULTS_FEATURED.image}
+              stableKey={`${RESULTS_FEATURED.id}-hero`}
+              title={RESULTS_FEATURED.title}
+              time={RESULTS_FEATURED.time.replace(' mins', 'm')}
+              kcal="420 kcal"
+              detail="—"
+              onPress={() => router.push(`/recipe/${RESULTS_FEATURED.id}`)}
+            />
+          )}
 
           {restAi.length > 0
-            ? restAi.map((recipe, idx) => {
-                const cardStyle = idx % 2 === 0 ? styles.sideCard : styles.horizontalCard;
-                return (
-                  <Pressable
-                    key={recipe.id}
-                    onPress={() => router.push(`/recipe/${recipe.id}`)}
-                    style={({ pressed }) => [cardStyle, pressed && styles.pressed]}>
-                    <View style={styles.recipeImageWrap}>
-                      <FallbackRecipeImage
-                        uri={recipe.heroImage}
-                        style={styles.sideImage}
-                        contentFit="cover"
-                        useNeutralFallbacks
-                        stableKey={`${recipe.id}-card`}
-                      />
-                    </View>
-                    <View style={styles.recipeBody}>
-                      <View style={styles.rowBetween}>
-                        <Text style={styles.sideTitle}>{recipe.title}</Text>
-                        <Text style={styles.recipeTime}>{shortTime(recipe.timeLabel)}</Text>
-                      </View>
-                      {session ? <AiRecipeMetaRow recipe={recipe} session={session} /> : null}
-                    </View>
-                  </Pressable>
-                );
-              })
+            ? restAi.map((recipe) => (
+                <RecipeOverlayCard
+                  key={recipe.id}
+                  imageUri={recipe.heroImage}
+                  useNeutralFallbacks
+                  stableKey={`${recipe.id}-card`}
+                  title={recipe.title}
+                  time={shortTime(recipe.timeLabel)}
+                  kcal={recipe.kcalLabel}
+                  detail={session?.cookingStyleLabel?.trim() || '—'}
+                  onPress={() => router.push(`/recipe/${recipe.id}`)}
+                />
+              ))
             : (
-                <Fragment>
-                <Pressable
-                  key="mock-a"
-                  onPress={() => router.push(`/recipe/${RESULTS_SECONDARY[0].id}`)}
-                  style={({ pressed }) => [styles.sideCard, pressed && styles.pressed]}>
-                  <View style={styles.recipeImageWrap}>
-                    <FallbackRecipeImage
-                      uri={RESULTS_SECONDARY[0].image}
-                      style={styles.sideImage}
-                      contentFit="cover"
-                      stableKey={`${RESULTS_SECONDARY[0].id}-card`}
-                    />
-                  </View>
-                  <View style={styles.recipeBody}>
-                    <View style={styles.rowBetween}>
-                      <Text style={styles.sideTitle}>{RESULTS_SECONDARY[0].title}</Text>
-                      <Text style={styles.recipeTime}>{RESULTS_SECONDARY[0].time.replace(' mins', 'm')}</Text>
-                    </View>
-                    <View style={styles.heroMetaRow}>
-                      <Text style={styles.badge}>VEGAN</Text>
-                      <View style={styles.metaItem}>
-                        <MaterialIcons name="local-fire-department" size={16} color={MealMindColors.onSurfaceVariant} />
-                        <Text style={styles.metaTextSm}>320 kcal</Text>
-                      </View>
-                      <View style={[styles.metaItem, styles.styleMeta]}>
-                        <MaterialIcons name="tune" size={16} color={MealMindColors.onSurfaceVariant} />
-                        <Text style={styles.metaTextSm}>—</Text>
-                      </View>
-                    </View>
-                  </View>
-                </Pressable>
-                <Pressable
-                  key="mock-b"
-                  onPress={() => router.push(`/recipe/${RESULTS_SECONDARY[1].id}`)}
-                  style={({ pressed }) => [styles.horizontalCard, pressed && styles.pressed]}>
-                  <View style={styles.recipeImageWrap}>
-                    <FallbackRecipeImage
-                      uri={RESULTS_SECONDARY[1].image}
-                      style={styles.sideImage}
-                      contentFit="cover"
-                      stableKey={`${RESULTS_SECONDARY[1].id}-card`}
-                    />
-                  </View>
-                  <View style={styles.recipeBody}>
-                    <View style={styles.rowBetween}>
-                      <Text style={styles.sideTitle}>{RESULTS_SECONDARY[1].title}</Text>
-                      <Text style={styles.recipeTime}>{RESULTS_SECONDARY[1].time.replace(' mins', 'm')}</Text>
-                    </View>
-                    <View style={styles.heroMetaRow}>
-                      <Text style={styles.badge}>LIGHT</Text>
-                      <View style={styles.metaItem}>
-                        <MaterialIcons name="local-fire-department" size={16} color={MealMindColors.onSurfaceVariant} />
-                        <Text style={styles.metaTextSm}>280 kcal</Text>
-                      </View>
-                      <View style={[styles.metaItem, styles.styleMeta]}>
-                        <MaterialIcons name="tune" size={16} color={MealMindColors.onSurfaceVariant} />
-                        <Text style={styles.metaTextSm}>—</Text>
-                      </View>
-                    </View>
-                  </View>
-                </Pressable>
-                </Fragment>
+                <>
+                  <RecipeOverlayCard
+                    key="mock-a"
+                    imageUri={RESULTS_SECONDARY[0].image}
+                    stableKey={`${RESULTS_SECONDARY[0].id}-card`}
+                    title={RESULTS_SECONDARY[0].title}
+                    time={RESULTS_SECONDARY[0].time.replace(' mins', 'm')}
+                    kcal="320 kcal"
+                    detail="—"
+                    onPress={() => router.push(`/recipe/${RESULTS_SECONDARY[0].id}`)}
+                  />
+                  <RecipeOverlayCard
+                    key="mock-b"
+                    imageUri={RESULTS_SECONDARY[1].image}
+                    stableKey={`${RESULTS_SECONDARY[1].id}-card`}
+                    title={RESULTS_SECONDARY[1].title}
+                    time={RESULTS_SECONDARY[1].time.replace(' mins', 'm')}
+                    kcal="280 kcal"
+                    detail="—"
+                    onPress={() => router.push(`/recipe/${RESULTS_SECONDARY[1].id}`)}
+                  />
+                </>
               )}
 
           {!featured &&
             EXTRA_RESULTS.map((item) => (
-              <View key={item.id} style={styles.horizontalCard}>
-                <View style={styles.recipeImageWrap}>
-                  <FallbackRecipeImage
-                    uri={item.image}
-                    style={styles.sideImage}
-                    contentFit="cover"
-                    stableKey={`${item.id}-extra`}
-                  />
-                </View>
-                <View style={styles.recipeBody}>
-                  <View style={styles.rowBetween}>
-                    <Text style={styles.sideTitle}>{item.title}</Text>
-                    <Text style={styles.recipeTime}>{item.time}</Text>
-                  </View>
-                  <View style={styles.heroMetaRow}>
-                    <Text style={styles.badge}>{item.badge}</Text>
-                    <Text style={styles.metaTextSm}>{item.note}</Text>
-                  </View>
-                </View>
-              </View>
+              <RecipeOverlayCard
+                key={item.id}
+                imageUri={item.image}
+                stableKey={`${item.id}-extra`}
+                title={item.title}
+                time={item.time}
+                detail={item.note}
+                onPress={() => {}}
+              />
             ))}
 
           <View style={styles.loadMoreSection}>
+            <Text style={styles.categoryTitle}>Explore More Categories</Text>
+            <View style={styles.categoryWrap}>
+              {EXPLORE_CATEGORY_CHIPS.map(({ label, slug }) => {
+                const selected = selectedExploreSlugs.includes(slug);
+                return (
+                  <Pressable
+                    key={slug}
+                    accessibilityRole="button"
+                    accessibilityLabel={label}
+                    accessibilityHint="Tap to toggle; several categories can stay selected"
+                    accessibilityState={{ selected }}
+                    hitSlop={6}
+                    onPress={() => toggleExploreCategory(slug)}
+                    style={({ pressed }) => [
+                      styles.categoryChip,
+                      selected && styles.categoryChipSelected,
+                      pressed && styles.categoryChipPressed,
+                    ]}>
+                    <Text style={[styles.categoryChipText, selected && styles.categoryChipTextSelected]}>{label}</Text>
+                  </Pressable>
+                );
+              })}
+            </View>
             <Pressable
               accessibilityRole="button"
               accessibilityLabel="Load more recipe ideas"
@@ -383,14 +364,6 @@ export default function ResultsScreen() {
                 </>
               )}
             </Pressable>
-            <Text style={styles.categoryTitle}>Explore More Categories</Text>
-            <View style={styles.categoryWrap}>
-              {['Fast Food', 'Snacks', 'Desserts', 'Healthy Bites'].map((label) => (
-                <View key={label} style={styles.categoryChip}>
-                  <Text style={styles.categoryChipText}>{label}</Text>
-                </View>
-              ))}
-            </View>
           </View>
 
           <View style={styles.bottomPad} />
@@ -418,29 +391,23 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingVertical: MealMindSpace.sm,
   },
-  topBarRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: MealMindSpace.sm,
+  topBarTitleCol: {
+    flex: 1,
+    minWidth: 0,
   },
-  iconBtn: {
-    padding: 6,
+  topBarKicker: {
+    fontFamily: MealMindFonts.labelSemibold,
+    fontSize: 11,
+    letterSpacing: 1.4,
+    textTransform: 'uppercase',
+    color: MealMindColors.onSurfaceVariant,
+    marginBottom: 2,
   },
   topBarTitle: {
     fontFamily: MealMindFonts.headlineExtraBold,
     fontSize: 22,
     letterSpacing: headlineTracking,
     color: MealMindColors.primary,
-  },
-  avatarWell: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: MealMindColors.surfaceContainerHigh,
-    borderWidth: 2,
-    borderColor: `${MealMindColors.primary}1A`,
-    alignItems: 'center',
-    justifyContent: 'center',
   },
   pageHeader: {
     gap: 4,
@@ -467,121 +434,66 @@ const styles = StyleSheet.create({
     ...MealMindShadow.ambient,
     position: 'relative',
   },
-  bestPill: {
-    position: 'absolute',
-    top: MealMindSpace.md,
-    left: MealMindSpace.md,
-    zIndex: 2,
-    backgroundColor: MealMindColors.primary,
-    borderRadius: MealMindRadii.full,
-    paddingHorizontal: MealMindSpace.md,
-    paddingVertical: 8,
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-  },
-  bestPillText: {
-    fontFamily: MealMindFonts.labelSemibold,
-    fontSize: 12,
-    color: MealMindColors.onPrimary,
-  },
   heroImageWrap: {
-    height: 256,
+    height: 240,
     width: '100%',
+    position: 'relative',
   },
   heroImage: {
     width: '100%',
     height: '100%',
   },
-  heroTextCol: {
-    padding: MealMindSpace.lg,
-    gap: 10,
+  heroOverlay: {
+    position: 'absolute',
+    left: MealMindSpace.lg,
+    right: MealMindSpace.lg,
+    bottom: MealMindSpace.lg,
+    gap: MealMindSpace.sm,
   },
-  rowBetween: {
+  heroOverlayTitleRow: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
     gap: MealMindSpace.sm,
   },
-  heroTitle: {
-    flex: 1,
-    fontFamily: MealMindFonts.headlineBold,
-    fontSize: 24,
-    color: MealMindColors.onSurface,
-  },
-  heroTime: {
-    fontFamily: MealMindFonts.headlineBold,
-    fontSize: 20,
-    color: MealMindColors.primary,
-  },
-  heroMetaRow: {
+  heroOverlayTimeWrap: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: MealMindSpace.sm,
   },
-  metaRowWrap: {
+  heroOverlayTitle: {
+    flex: 1,
+    fontFamily: MealMindFonts.headlineBold,
+    fontSize: 22,
+    color: '#ffffff',
+  },
+  heroOverlayTime: {
+    fontFamily: MealMindFonts.headlineBold,
+    fontSize: 18,
+    color: MealMindColors.primaryContainer,
+  },
+  heroOverlayMetaRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: MealMindSpace.sm,
     flexWrap: 'wrap',
     rowGap: 6,
   },
-  styleMeta: {
-    flexShrink: 1,
-    maxWidth: '100%',
-  },
-  badge: {
-    backgroundColor: MealMindColors.secondaryContainer,
-    color: MealMindColors.onSecondaryContainer,
-    paddingHorizontal: MealMindSpace.md,
-    paddingVertical: 4,
-    borderRadius: MealMindRadii.full,
-    fontFamily: MealMindFonts.labelSemibold,
-    fontSize: 11,
-    overflow: 'hidden',
-  },
-  metaItem: {
+  heroOverlayMetaItem: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 4,
   },
-  metaTextSm: {
+  heroOverlayKcalText: {
+    fontFamily: MealMindFonts.headlineBold,
+    fontSize: 17,
+    color: 'rgba(255,255,255,0.96)',
+  },
+  heroOverlayDetailText: {
     fontFamily: MealMindFonts.bodyMedium,
     fontSize: 12,
-    color: MealMindColors.onSurfaceVariant,
-  },
-  sideCard: {
-    backgroundColor: MealMindColors.surfaceContainerLowest,
-    borderRadius: MealMindRadii.md,
-    overflow: 'hidden',
-    ...MealMindShadow.ambient,
-  },
-  horizontalCard: {
-    backgroundColor: MealMindColors.surfaceContainerLowest,
-    borderRadius: MealMindRadii.md,
-    overflow: 'hidden',
-    ...MealMindShadow.ambient,
-  },
-  recipeImageWrap: {
-    height: 224,
-    width: '100%',
-    backgroundColor: MealMindColors.surfaceContainerHigh,
-  },
-  sideImage: {
-    width: '100%',
-    height: '100%',
-  },
-  recipeBody: {
-    padding: MealMindSpace.lg,
-    gap: MealMindSpace.sm,
-  },
-  sideTitle: {
-    flex: 1,
-    fontFamily: MealMindFonts.headlineBold,
-    fontSize: 22,
-    color: MealMindColors.onSurface,
-  },
-  recipeTime: {
-    fontFamily: MealMindFonts.headlineBold,
-    fontSize: 18,
-    color: MealMindColors.primary,
+    color: 'rgba(255,255,255,0.88)',
+    flexShrink: 1,
   },
   loadMoreSection: {
     alignItems: 'center',
@@ -621,15 +533,28 @@ const styles = StyleSheet.create({
     gap: MealMindSpace.sm,
   },
   categoryChip: {
-    backgroundColor: MealMindColors.surfaceContainer,
+    backgroundColor: MealMindColors.surfaceContainerLowest,
     borderRadius: MealMindRadii.md,
     paddingHorizontal: MealMindSpace.md,
     paddingVertical: MealMindSpace.sm,
+    borderWidth: StyleSheet.hairlineWidth,
+    borderColor: `${MealMindColors.outlineVariant}55`,
+  },
+  categoryChipSelected: {
+    backgroundColor: MealMindColors.primary,
+    borderColor: MealMindColors.primary,
+  },
+  categoryChipPressed: {
+    opacity: 0.92,
+    transform: [{ scale: 0.98 }],
   },
   categoryChipText: {
     fontFamily: MealMindFonts.bodyMedium,
     fontSize: 14,
     color: MealMindColors.onSurface,
+  },
+  categoryChipTextSelected: {
+    color: MealMindColors.onPrimary,
   },
   bottomPad: {
     height: MealMindSpace.xl,

@@ -2,8 +2,8 @@ import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import { useBottomTabBarHeight } from '@react-navigation/bottom-tabs';
 import { useFocusEffect } from '@react-navigation/native';
 import { Image } from 'expo-image';
-import { useRouter } from 'expo-router';
-import { useCallback, useState } from 'react';
+import { useLocalSearchParams, useRouter } from 'expo-router';
+import { useCallback, useEffect, useState } from 'react';
 import {
   ActionSheetIOS,
   Alert,
@@ -20,6 +20,7 @@ import { ChipRow, GlowButton, MealMindScreen, ProfileMenuButton } from '@/compon
 import { MealMindColors } from '@/constants/mealmind-colors';
 import { MealMindRadii, MealMindShadow, MealMindSpace } from '@/constants/mealmind-layout';
 import { MealMindFonts, headlineTracking } from '@/constants/mealmind-typography';
+import { exploreSlugFromRaw, homeFiltersFromExploreSlug } from '@/lib/explore-category-home';
 import {
   COOKING_STYLE_CHIPS,
   COOKING_TIME_CHIPS,
@@ -37,8 +38,16 @@ const CONTENT_MAX = 672;
 const RECENT_INITIAL_COUNT = 4;
 const RECENT_REVEAL_STEP = 3;
 
-const RECOMMENDED_IMAGE =
-  'https://lh3.googleusercontent.com/aida-public/AB6AXuCUYrigExE_1p27TyKw-Dzrul_Fo6P2M4pAbBPVHjgW-UEoiIiLtdcM7Vkr_JwM-4RJYgD25yLR62o3KiqHZ1pltianwOLn_jdqbliqE46QDa8fTDBfsndoaaYq_PTJscR5n5Vbhz0_YCQQJXVEa6F9CnW0bWcIDkPotOXMxuklkA6q-BZhKqIWCyz3S6nipJKpVeMVz3kBdF0XQPT-roApjEAuiT0BN0ySZdVuGTimffjDlxy7CGd0tPJEHzPmo639v8kwWRVlM78';
+/** Fresh produce flat-lay — already in `RELIABLE_GENERIC_FOOD_BACKDROPS`, reused so we don't add a new image dep. */
+const HEALTH_BANNER_IMAGE =
+  'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=1200&q=85&auto=format&fit=crop';
+
+function firstRouteParam(raw: string | string[] | undefined): string | undefined {
+  if (raw == null) {
+    return undefined;
+  }
+  return Array.isArray(raw) ? raw[0] : raw;
+}
 
 function formatLastUsed(iso: string): string {
   const at = Date.parse(iso);
@@ -66,6 +75,7 @@ function formatLastUsed(iso: string): string {
 
 export default function HomeScreen() {
   const router = useRouter();
+  const { explore } = useLocalSearchParams<{ explore?: string | string[] }>();
   const tabBarHeight = useBottomTabBarHeight();
   const [ingredientsInput, setIngredientsInput] = useState('');
   const [timeId, setTimeId] = useState<string | null>('15');
@@ -73,6 +83,21 @@ export default function HomeScreen() {
   const [cookingStyleId, setCookingStyleId] = useState<string | null>(null);
   const [recentVisible, setRecentVisible] = useState<number>(RECENT_INITIAL_COUNT);
   const [recentIngredients, setRecentIngredients] = useState<RecentIngredient[]>([]);
+
+  useEffect(() => {
+    const slug = exploreSlugFromRaw(firstRouteParam(explore));
+    if (slug == null) {
+      return;
+    }
+    const patch = homeFiltersFromExploreSlug(slug);
+    if (patch.mealTypeId !== undefined) {
+      setMealTypeId(patch.mealTypeId);
+    }
+    if (patch.cookingStyleId !== undefined) {
+      setCookingStyleId(patch.cookingStyleId);
+    }
+    router.setParams({ explore: undefined });
+  }, [explore, router]);
 
   const loadRecentIngredients = useCallback(() => {
     let alive = true;
@@ -182,7 +207,7 @@ export default function HomeScreen() {
     ]);
   };
 
-  const fabBottom = Math.max(tabBarHeight, 52) + MealMindSpace.md;
+  const fabBottom = Math.max(tabBarHeight, 52) + MealMindSpace.xs;
 
   const onFindMyMeal = () => {
     const ingredients = ingredientsInput
@@ -314,16 +339,16 @@ export default function HomeScreen() {
 
             <View style={styles.recommendWrap}>
               <Image
-                source={{ uri: RECOMMENDED_IMAGE }}
+                source={{ uri: HEALTH_BANNER_IMAGE }}
                 style={styles.recommendImage}
                 contentFit="cover"
-                accessibilityLabel="Featured chef pick soup"
+                accessibilityLabel="Healthy eating banner with fresh produce"
               />
               <View style={styles.recommendOverlay} pointerEvents="none" />
               <View style={styles.recommendContent}>
-                <Text style={styles.recommendBadge}>CHEF&apos;S PICK</Text>
-                <Text style={styles.recommendTitle}>Hearty Pumpkin & Sage Soup</Text>
-                <Text style={styles.recommendBody}>Perfect for a cozy autumn evening.</Text>
+                <Text style={styles.recommendBadge}>EAT WELL</Text>
+                <Text style={styles.recommendTitle}>Healthy meals, your way</Text>
+                <Text style={styles.recommendBody}>Cook clean, balanced dishes from what you have.</Text>
               </View>
             </View>
           </View>
@@ -404,6 +429,7 @@ const styles = StyleSheet.create({
     lineHeight: 40,
     letterSpacing: headlineTracking,
     color: MealMindColors.onSurface,
+    textAlign: 'center',
   },
   subhead: {
     fontFamily: MealMindFonts.bodyMedium,
